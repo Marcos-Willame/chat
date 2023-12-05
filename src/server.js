@@ -1,15 +1,20 @@
-const { WebSocketServer } = require("ws");
 const dotenv = require("dotenv");
+dotenv.config();
+
+const http = require("http");
+const express = require("express");
+const { WebSocketServer } = require("ws");
 
 const { handleChat } = require("./chat");
 const { handleRoulette } = require("./roulette");
 
-dotenv.config();
-
 const PORT = process.env.PORT || 8080;
-const server = new WebSocketServer({ port: PORT });
 
-server.on("connection", (ws) => {
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocketServer({ server });
+
+wss.on("connection", (ws) => {
   console.info("Cliente conectado");
   setupWebSocket(ws);
 });
@@ -21,13 +26,17 @@ function setupWebSocket(ws) {
     const data = JSON.parse(message);
 
     if (data.action === "chat") {
-      handleChat({ ws, data, server });
+      handleChat({ ws, data, server: wss });
     } else if (data.action === "roulette") {
-      handleRoulette({ ws, data, server });
+      handleRoulette({ ws, data, server: wss });
     }
   });
 
   ws.on("close", () => console.info("Cliente desconectado"));
 }
 
-console.info(`Servidor WebSocket rodando na porta ${PORT}`);
+app.use(express.static("public"));
+
+server.listen(PORT, () => {
+  console.info(`Servidor Express rodando na porta ${PORT}`);
+});
