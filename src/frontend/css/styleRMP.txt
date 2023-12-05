@@ -1,0 +1,290 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+.body-roleta {
+  margin: 0;
+  padding: 0;
+  background-color: #34495e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.game {
+  position: relative;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80vw;
+  height: 80vw;
+  max-width: 615px;
+  max-height: 615px;
+  background-color: #333;
+  border-radius: 50%;
+  border: 1vw solid #dde;
+  position: relative;
+  overflow: hidden;
+  transition: transform 5s;
+}
+
+.container.rotated {
+  animation: rotateContainer 5s linear forwards;
+}
+
+@keyframes rotateContainer {
+  to {
+    transform: rotate(720deg);
+  }
+}
+
+.container .roulette-option {
+  width: 8vw;
+  height: 40vw;
+  font-size: 2vw;
+  position: absolute;
+  clip-path: polygon(100% 0, 50% 100%, 0 0);
+  transform-origin: right bottom; /* Mudança do ponto de origem */
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #fff;
+  border: 1px solid transparent;
+  transition: all 5s ease-out;
+  background-color: var(--color);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-100%) translateY(-100%) rotate(calc(var(--rotation) * -1 - 90deg)); /* Ajuste para iniciar no meio do 1 */
+}
+
+.container .roulette-option.selected {
+  background-color: #fff !important;
+  color: var(--color);
+  transform: translateX(-50%) translateY(-100%) rotate(0deg);
+}
+
+.container .num-1 {
+  --color: #ccff00;
+  --rotation: 0deg;
+  font-size: 2vw;
+}
+
+.container .num-2 {
+  --color: #99ff00;
+  --rotation: 12deg;
+}
+
+.container .num-3 {
+  --color: #66ff00;
+  --rotation: 24deg;
+}
+
+.container .num-4 {
+  --color: #33ff00;
+  --rotation: 36deg;
+}
+
+.container .num-5 {
+  --color: #00ff00;
+  --rotation: 48deg;
+}
+
+.container .num-6 {
+  --color: #00cc00;
+  --rotation: 60deg;
+}
+
+.container .num-7 {
+  --color: #00ffff;
+  --rotation: 72deg;
+}
+
+.container .num-8 {
+  --color: #00ccff;
+  --rotation: 84deg;
+}
+
+.container .num-9 {
+  --color: #0099ff;
+  --rotation: 96deg;
+}
+
+.container .num-10 {
+  --color: #0066ff;
+  --rotation: 108deg;
+}
+
+.container .num-11 {
+  --color: #0033ff;
+  --rotation: 120deg;
+}
+
+.container .num-12 {
+  --color: #0000ff;
+  --rotation: 132deg;
+}
+
+.container .num-13 {
+  --color: #f5e275;
+  --rotation: 144deg;
+}
+
+.container .num-14 {
+  --color: #ffd700;
+  --rotation: 156deg;
+}
+
+.container .num-15 {
+  --color: #ffc800;
+  --rotation: 168deg;
+}
+
+.container .num-16 {
+  --color: #ffb300;
+  --rotation: 180deg;
+}
+
+.container .num-17 {
+  --color: #ff9900;
+  --rotation: 192deg;
+}
+
+.container .num-18 {
+  --color: #ff8000;
+  --rotation: 204deg;
+}
+
+.container .num-19 {
+  --color: #c8bfff;
+  --rotation: 216deg;
+}
+
+.container .num-20 {
+  --color: #bf98f3;
+  --rotation: 228deg;
+}
+
+.container .num-21 {
+  --color: #9f79ee;
+  --rotation: 240deg;
+}
+
+.container .num-22 {
+  --color: #7e5bcc;
+  --rotation: 252deg;
+}
+
+.container .num-23 {
+  --color: #663399;
+  --rotation: 264deg;
+}
+
+.container .num-24 {
+  --color: #4b0082;
+  --rotation: 276deg;
+}
+
+.container .num-25 {
+  --color: #ff9999;
+  --rotation: 288deg;
+}
+
+.container .num-26 {
+  --color: #ff6666;
+  --rotation: 300deg;
+}
+
+.container .num-27 {
+  --color: #ff3333;
+  --rotation: 312deg;
+}
+
+.container .num-28 {
+  --color: #ff0000;
+  --rotation: 324deg;
+}
+
+.container .num-29 {
+  --color: #cc0000;
+  --rotation: 336deg;
+}
+
+.container .num-30 {
+  --color: #990000;
+  --rotation: 348deg;
+}
+
+.arrow {
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9;
+}
+
+.arrow img {
+  width: 15vw;
+  height: auto;
+}
+
+#spin {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9;
+  background-color: #e2e2e2;
+  text-transform: uppercase;
+  border: 0.5vw solid #fff;
+  font-weight: bold;
+  font-size: 2vw;
+  color: #a2a2a2;
+  width: 6vw;
+  height: 6vw;
+  font-family: sans-serif;
+  border-radius: 50%;
+  cursor: pointer;
+  outline: 2px solid #333;
+  letter-spacing: 1px;
+}
+
+#new-game {
+  position: absolute;
+  top: 2vw;
+  right: 2vw;
+  padding: 2vw;
+  font-size: 2vw;
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#new-game:hover {
+  background-color: #2980b9;
+}
+
+#selected {
+  padding: 2vw;
+  min-height: 6vw;
+  font-size: 3vw;
+  color: #fff;
+}
+
+.container.rotated .roulette-option {
+  top: 50%;
+  transform-origin: right center; /* Mudança do ponto de origem para os números rotacionados */
+}

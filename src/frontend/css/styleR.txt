@@ -1,0 +1,241 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+.body-roleta {
+  margin: 0;
+  padding: 0;
+  background-color: #34495e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.game {
+  position: relative;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 615px;
+  height: 615px;
+  background-color: #333;
+  border-radius: 50%;
+  border: 15px solid #dde;
+  position: relative;
+  overflow: hidden;
+  transition: transform 5s;
+}
+
+.container .roulette-option {
+  width: 60px;
+  height: 50%;
+  position: absolute;
+  clip-path: polygon(100% 0, 50% 100%, 0 0);
+  transform: translateX(-50%);
+  transform-origin: bottom;
+  top: 0;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  border: 1px solid transparent; /* Adicione esta linha para a borda entre as casas, exceto a primeira */
+  transition: all 0.5s;
+  background-color: var(--color);
+}
+
+.container .roulette-option.selected {
+  background-color: #fff !important;
+  color: var(--color);
+}
+
+.container .num-1 {
+  --color: #ccff00;
+  transform: rotate(0deg);
+}
+.container .num-2 {
+  --color: #99ff00;
+  transform: rotate(12deg);
+}
+.container .num-3 {
+  --color: #66ff00;
+  transform: rotate(24deg);
+}
+.container .num-4 {
+  --color: #33ff00;
+  transform: rotate(36deg);
+}
+.container .num-5 {
+  --color: #00ff00;
+  transform: rotate(48deg);
+}
+.container .num-6 {
+  --color: #00cc00;
+  transform: rotate(60deg);
+}
+.container .num-7 {
+  --color: #00ffff;
+  transform: rotate(72deg);
+}
+.container .num-8 {
+  --color: #00ccff;
+  transform: rotate(84deg);
+}
+.container .num-9 {
+  --color: #0099ff;
+  transform: rotate(96deg);
+}
+.container .num-10 {
+  --color: #0066ff;
+  transform: rotate(108deg);
+}
+.container .num-11 {
+  --color: #0033ff;
+  transform: rotate(120deg);
+}
+.container .num-12 {
+  --color: #0000ff;
+  transform: rotate(132deg);
+}
+.container .num-13 {
+  --color: #f5e275;
+  transform: rotate(144deg);
+}
+.container .num-14 {
+  --color: #ffd700;
+  transform: rotate(156deg);
+}
+.container .num-15 {
+  --color: #ffc800;
+  transform: rotate(168deg);
+}
+.container .num-16 {
+  --color: #ffb300;
+  transform: rotate(180deg);
+}
+.container .num-17 {
+  --color: #ff9900;
+  transform: rotate(192deg);
+}
+.container .num-18 {
+  --color: #ff8000;
+  transform: rotate(204deg);
+}
+.container .num-19 {
+  --color: #c8bfff;
+  transform: rotate(216deg);
+}
+.container .num-20 {
+  --color: #bf98f3;
+  transform: rotate(228deg);
+}
+.container .num-21 {
+  --color: #9f79ee;
+  transform: rotate(240deg);
+}
+.container .num-22 {
+  --color: #7e5bcc;
+  transform: rotate(252deg);
+}
+.container .num-23 {
+  --color: #663399;
+  transform: rotate(264deg);
+}
+.container .num-24 {
+  --color: #4b0082;
+  transform: rotate(276deg);
+}
+.container .num-25 {
+  --color: #ff9999;
+  transform: rotate(288deg);
+}
+.container .num-26 {
+  --color: #ff6666;
+  transform: rotate(300deg);
+}
+.container .num-27 {
+  --color: #ff3333;
+  transform: rotate(312deg);
+}
+.container .num-28 {
+  --color: #ff0000;
+  transform: rotate(324deg);
+}
+.container .num-29 {
+  --color: #cc0000;
+  transform: rotate(336deg);
+}
+.container .num-30 {
+  --color: #990000;
+  transform: rotate(348deg);
+}
+
+.arrow {
+  position: absolute;
+  top: 5px; /* Ajuste a margem superior conforme necessário para posicionar a seta mais para baixo */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9;
+}
+
+.arrow img {
+  width: 150px; /* Ajuste o tamanho conforme necessário */
+  height: auto; /* Isso manterá a proporção original da imagem */
+}
+
+#spin {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  background-color: #e2e2e2;
+  text-transform: uppercase;
+  border: 8px solid #fff;
+  font-weight: bold;
+  font-size: 20px;
+  color: #a2a2a2;
+  width: 80px;
+  height: 80px;
+  font-family: sans-serif;
+  border-radius: 50%;
+  cursor: pointer;
+  outline: 1px solid #333;
+  letter-spacing: 1px;
+}
+
+/* Estilos para o botão "Novo Jogo" */
+#new-game {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#new-game:hover {
+  background-color: #2980b9;
+}
+
+#selected {
+  padding: 12px;
+  min-height: 48px;
+  color: #fff;
+  font-size: 20px;
+}

@@ -1,0 +1,287 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+.body-roleta {
+  background-color: #34495e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.game {
+  position: relative;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80vw;
+  max-width: 90vh;
+  height: 80vw;
+  max-height: 90vh;
+  background-color: #333;
+  border-radius: 50%;
+  border: 1vw solid #dde;
+  position: relative;
+  overflow: hidden;
+  transition: transform 5s;
+}
+
+.container .roulette-option {
+  width: 8vw;
+  height: 40vw;
+  position: absolute;
+  clip-path: polygon(100% 0, 50% 100%, 0 0);
+  transform: translateX(-50%);
+  transform-origin: 50% 100%;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2vw;
+  font-weight: 600;
+  color: #fff;
+  border: 1px solid transparent;
+  transition: all 0.5s;
+  background-color: var(--color);
+  bottom: 21vw;
+}
+
+.container .roulette-option.selected {
+  background-color: #fff !important;
+  color: var(--color);
+}
+
+.container .num-1 {
+  --color: #ccff00;
+  transform: rotate(0deg);
+}
+.container .num-2 {
+  --color: #99ff00;
+  transform: rotate(12deg);
+}
+.container .num-3 {
+  --color: #66ff00;
+  transform: rotate(24deg);
+}
+.container .num-4 {
+  --color: #33ff00;
+  transform: rotate(36deg);
+}
+.container .num-5 {
+  --color: #00ff00;
+  transform: rotate(48deg);
+}
+.container .num-6 {
+  --color: #00cc00;
+  transform: rotate(60deg);
+}
+.container .num-7 {
+  --color: #00ffff;
+  transform: rotate(72deg);
+}
+.container .num-8 {
+  --color: #00ccff;
+  transform: rotate(84deg);
+}
+.container .num-9 {
+  --color: #0099ff;
+  transform: rotate(96deg);
+}
+.container .num-10 {
+  --color: #0066ff;
+  transform: rotate(108deg);
+}
+.container .num-11 {
+  --color: #0033ff;
+  transform: rotate(120deg);
+}
+.container .num-12 {
+  --color: #0000ff;
+  transform: rotate(132deg);
+}
+.container .num-13 {
+  --color: #f5e275;
+  transform: rotate(144deg);
+}
+.container .num-14 {
+  --color: #ffd700;
+  transform: rotate(156deg);
+}
+.container .num-15 {
+  --color: #ffc800;
+  transform: rotate(168deg);
+}
+.container .num-16 {
+  --color: #ffb300;
+  transform: rotate(180deg);
+}
+.container .num-17 {
+  --color: #ff9900;
+  transform: rotate(192deg);
+}
+.container .num-18 {
+  --color: #ff8000;
+  transform: rotate(204deg);
+}
+.container .num-19 {
+  --color: #c8bfff;
+  transform: rotate(216deg);
+}
+.container .num-20 {
+  --color: #bf98f3;
+  transform: rotate(228deg);
+}
+.container .num-21 {
+  --color: #9f79ee;
+  transform: rotate(240deg);
+}
+.container .num-22 {
+  --color: #7e5bcc;
+  transform: rotate(252deg);
+}
+.container .num-23 {
+  --color: #663399;
+  transform: rotate(264deg);
+}
+.container .num-24 {
+  --color: #4b0082;
+  transform: rotate(276deg);
+}
+.container .num-25 {
+  --color: #ff9999;
+  transform: rotate(288deg);
+}
+.container .num-26 {
+  --color: #ff6666;
+  transform: rotate(300deg);
+}
+.container .num-27 {
+  --color: #ff3333;
+  transform: rotate(312deg);
+}
+.container .num-28 {
+  --color: #ff0000;
+  transform: rotate(324deg);
+}
+.container .num-29 {
+  --color: #cc0000;
+  transform: rotate(336deg);
+}
+.container .num-30 {
+  --color: #990000;
+  transform: rotate(348deg);
+}
+
+.arrow {
+  position: absolute;
+  top: calc(28% + 8vw); /* Ajuste conforme necessário */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9;
+  transition: top 0.5s;
+}
+
+.arrow img {
+  width: 15vw;
+  height: auto;
+}
+
+#spin {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  background-color: #e2e2e2;
+  text-transform: uppercase;
+  border: 0.5vw solid #fff;
+  font-weight: bold;
+  font-size: 2vw;
+  color: #a2a2a2;
+  width: 10vw;
+  height: 10vw;
+  font-family: sans-serif;
+  border-radius: 50%;
+  cursor: pointer;
+  outline: 1px solid #333;
+  letter-spacing: 1px;
+}
+
+#new-game {
+  position: absolute;
+  top: 2vw;
+  right: 2vw;
+  padding: 2vw;
+  font-size: 2vw;
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#new-game:hover {
+  background-color: #2980b9;
+}
+
+#selected {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0;
+  min-height: 10%;
+  font-size: 2vw;
+  color: #fff;
+  transition: bottom 0.5s;
+}
+
+@media (max-width: 1500px) {
+  .container .roulette-option {
+    font-size: 3vw;
+    bottom: calc(46.5vw - 10%);
+  }
+
+  .arrow {
+    top: calc(50% - 39vw); /* Ajuste conforme necessário */
+    left: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    z-index: 9;
+    transition: top 0.5s;
+  }
+
+  .arrow img {
+    width: 25vw;
+  }
+
+  #spin {
+    font-size: 3vw;
+    width: 10vw;
+    height: 10vw;
+  }
+
+  #new-game {
+    font-size: 4vw;
+    padding: 4vw;
+  }
+
+  #selected {
+    bottom: calc(29% - 54vw); /* Ajuste conforme necessário */
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0;
+    min-height: 25%;
+    font-size: 3.5vw;
+    color: #fff;
+    transition: bottom 0.5s;
+  }
+}
