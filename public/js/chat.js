@@ -57,6 +57,12 @@ const getRandomColor = () => {
   return colors[randomIndex];
 };
 
+// Função para reproduzir o som de notificação
+function playNotificationSound() {
+  const notificationSound = document.getElementById('notificationSound');
+  notificationSound.play();
+}
+
 const scrollScreen = () => {
   window.scrollTo({
     top: document.body.scrollHeight,
@@ -64,6 +70,8 @@ const scrollScreen = () => {
   });
 
   chatNewMessage.style.display = "none";
+
+  
 };
 
 chatNewMessage.onclick = scrollScreen;
@@ -84,6 +92,7 @@ const processMessage = ({ data }) => {
 
   if (window.scrollY < CHAT_MESSAGE_SCROLL) {
     chatNewMessage.style.display = "flex";
+    playNotificationSound();
   } else {
     chatNewMessage.style.display = "none";
   }
