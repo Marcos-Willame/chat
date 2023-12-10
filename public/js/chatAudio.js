@@ -130,7 +130,6 @@ const processMessage = ({ data }) => {
     return;
   }
 
-  
   try {
     const { userId, userName, userColor, content, action } = JSON.parse(data);
 
@@ -151,7 +150,7 @@ const processMessage = ({ data }) => {
     } else if (action === 'audio') {
       // Processar dados de áudio
       // Adicione a mensagem de áudio ao chat
-      addMessageToChat(userName, userColor, 'enviou um áudio', true);
+      addMessageToChat(userName, userColor, 'enviou um áudio', false);
       // Verifique se o usuário não está rolando a tela
       if (window.scrollY < CHAT_MESSAGE_SCROLL) {
         // Exiba o botão "new-message" apenas quando estiver fora do chat
@@ -163,6 +162,7 @@ const processMessage = ({ data }) => {
     console.error('Erro ao processar mensagem JSON:', error);
   }
 };
+
 
 
 const handleLogin = (event) => {
