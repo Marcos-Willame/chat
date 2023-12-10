@@ -63,10 +63,13 @@
     </div>
 
     <div class="body-chat">
+      <button id="startRecording">Iniciar Gravação</button>
+      <button id="stopRecording" disabled>Parar Gravação</button>
+      <audio id="audioPlayer" controls></audio>
       <section class="containers">
         <section class="login">
           <h2>Login</h2>
-          <form class="login__form" id="loginForm">
+          <form class="login__form">
             <input
               type="text"
               class="login__input"
@@ -76,20 +79,18 @@
             <button type="submit" class="login__button">Entrar</button>
           </form>
         </section>
-        
+
         <section class="chat">
-          <section class="chat__messages" id="chatMessages"></section>
-          <div id="audioContainer"></div> <!-- Esta parte está presente -->
-          <form class="chat__form" id="chatForm">
-            <h1>Audio</h1>
-            <button id="recordingButton" disabled>Mic</button>
+          <section class="chat__messages"></section>
+
+          <form class="chat__form">
             <input
               type="text"
               class="chat__input"
               placeholder="Digite uma mensagem"
               autofocus
+              required
             />
-          
             <button type="submit" class="chat__button">
               <span class="material-symbols-outlined">send</span>
             </button>
@@ -97,16 +98,13 @@
         </section>
       </section>
     </div>
-    <div class="botão-conteiner">
-      <button id="new-message" ></button>
-      <div id="setaBaixo" ></div>
-    </div>
+    <button id="new-message">Mensagens</button>
     <!-- Adicione um elemento de áudio oculto -->
     <audio id="notificationSound" src="./music.mp3/Mensagem-Do-Xiaomi.mp3" preload="auto"></audio>
-    
+
     <script src="./js/main.js"></script>
-    <script src="./js/roulette.js"></script>  
-    <script src="./js/chatAudio.js"></script>
+    <script src="./js/chat.js"></script>
+    <script src="./js/roulette.js"></script>
   </body>
 </html>
 

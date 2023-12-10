@@ -1,0 +1,234 @@
+//server.js 
+const dotenv = require("dotenv");
+dotenv.config();
+
+const http = require("http");
+const express = require("express");
+const { WebSocketServer } = require("ws");
+
+const { handleChat } = require("./chat");
+const { handleRoulette } = require("./roulette");
+
+const PORT = process.env.PORT || 8080;
+
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocketServer({ server });
+
+wss.on("connection", (ws) => {
+  console.info("Cliente conectado");
+  setupWebSocket(ws);
+});
+
+function setupWebSocket(ws) {
+  ws.on("error", console.error);
+
+  ws.on("message", (message) => {
+    const data = JSON.parse(message);
+
+    if (data.action === "chat") {
+      handleChat({ ws, data, server: wss });
+    } else if (data.action === "roulette") {
+      handleRoulette({ ws, data, server: wss });
+    }
+  });
+
+  ws.on("close", () => console.info("Cliente desconectado"));
+}
+
+app.use(express.static("public"));
+
+server.listen(PORT, () => {
+  console.info(`Servidor Express rodando na porta ${PORT}`);
+});
+
+
+
+
+
+
+
+
+
+//server.js 
+const dotenv = require('dotenv');
+dotenv.config();
+
+const http = require('http');
+const express = require('express');
+const { WebSocketServer } = require('ws');
+
+const { handleChat } = require('./chat');
+// const { handleRoulette } = require('./roulette');
+
+const PORT = process.env.PORT || 8080;
+
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocketServer({ server });
+
+wss.on('connection', (ws) => {
+  console.info('Cliente conectado');
+  setupWebSocket(ws);
+});
+
+function setupWebSocket(ws) {
+  ws.on('error', console.error);
+
+  ws.on('message', (message) => {
+    const data = JSON.parse(message);
+
+    if (data.action === 'chat') {
+      handleChat({ ws, data, server: wss });
+    } else if (data.action === 'roulette') {
+      // handleRoulette({ ws, data, server: wss });
+    }
+  });
+
+  ws.on('close', () => console.info('Cliente desconectado'));
+}
+
+app.use(express.static('public'));
+
+server.listen(PORT, () => {
+  console.info(`Servidor Express rodando na porta ${PORT}`);
+});
+
+
+
+
+
+
+
+
+//serveraudio.js
+
+const WebSocket = require('ws');
+const http = require('http');
+
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('WebSocket server\n');
+});
+
+const wss = new WebSocket.Server({ server });
+const clients = new Map();
+
+wss.on('connection', (ws) => {
+  console.log('Cliente conectado.');
+
+  ws.on('message', (message) => {
+    // Verificar se a mensagem é um Blob (Buffer)
+    if (message instanceof Buffer) {
+      // Enviar o Buffer para todos os clientes
+      wss.clients.forEach((client) => {
+        if (client !== ws && client.readyState === WebSocket.OPEN) {
+          client.send(message);
+        }
+      });
+    } else {
+      // Parse da mensagem recebida
+      const { type, data, user, audioId } = JSON.parse(message);
+
+      // Verifica o tipo da mensagem (chat ou áudio)
+      if (type === 'audio') {
+        // Encaminhar a mensagem de áudio para os destinatários específicos
+        wss.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({ type, data, user, audioId }));
+
+            // Enviar o áudio de volta para o mesmo cliente
+            if (client === ws) {
+              ws.send(JSON.stringify({ type, data, user, audioId }));
+            }
+          }
+        });
+      }
+      // Adicione aqui lógica para mensagens de chat se necessário
+    }
+  });
+
+  ws.on('close', () => {
+    console.log('Cliente desconectado.');
+    // Remove o cliente da lista quando desconectado
+    for (const [clientId, client] of clients.entries()) {
+      if (client === ws) {
+        clients.delete(clientId);
+      }
+    }
+  });
+});
+
+const PORT = process.env.PORT || 3000;
+
+server.listen(PORT, () => {
+  console.log(`Servidor WebSocket rodando em http://localhost:${PORT}`);
+});
+
+
+
+
+
+
+const WebSocket = require('ws');
+const http = require('http');
+
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('WebSocket server\n');
+});
+
+const wss = new WebSocket.Server({ server });
+const clients = new Map();
+
+wss.on('connection', (ws) => {
+  console.log('Cliente conectado.');
+
+  ws.on('message', (message) => {
+    // Verificar se a mensagem é um Blob (Buffer)
+    if (message instanceof Buffer) {
+      // Enviar o Buffer para todos os clientes
+      wss.clients.forEach((client) => {
+        if (client !== ws && client.readyState === WebSocket.OPEN) {
+          client.send(message);
+        }
+      });
+    } else {
+      // Parse da mensagem recebida
+      const { type, data, user, audioId } = JSON.parse(message);
+
+      // Verifica o tipo da mensagem (chat ou áudio)
+      if (type === 'audio') {
+        // Encaminhar a mensagem de áudio para os destinatários específicos
+        wss.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({ type, data, user, audioId }));
+
+            // Enviar o áudio de volta para o mesmo cliente
+            if (client === ws) {
+              ws.send(JSON.stringify({ type, data, user, audioId }));
+            }
+          }
+        });
+      }
+      // Adicione aqui lógica para mensagens de chat se necessário
+    }
+  });
+
+  ws.on('close', () => {
+    console.log('Cliente desconectado.');
+    // Remove o cliente da lista quando desconectado
+    for (const [clientId, client] of clients.entries()) {
+      if (client === ws) {
+        clients.delete(clientId);
+      }
+    }
+  });
+});
+
+const PORT = process.env.PORT || 8080;
+
+server.listen(PORT, () => {
+  console.log(`Servidor WebSocket rodando em http://localhost:${PORT}`);
+});
+

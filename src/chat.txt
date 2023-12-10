@@ -1,0 +1,23 @@
+//chat.js do back end
+function handleChat({ server, data }) {
+  const handledData = JSON.stringify({ ...data, action: "message" });
+  server.clients.forEach((client) => client.send(handledData));
+}
+
+module.exports = { handleChat };
+
+
+
+
+
+
+//chat.js do back end
+function handleChat({ data, server }) {
+  const handledData = JSON.stringify({ ...data, action: "message" });
+  server.clients.forEach((client) => {
+    if (data.action === "audio") {
+      console.log("Recebido áudio:", data);
+    }
+    client.send(handledData);
+  });
+}

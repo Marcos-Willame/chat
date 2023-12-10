@@ -1,3 +1,5 @@
+/*
+//chat.js
 // login elements
 const login = document.querySelector(".login");
 const loginForm = login.querySelector(".login__form");
@@ -70,33 +72,57 @@ const scrollScreen = () => {
   });
 
   chatNewMessage.style.display = "none";
-
-  
 };
 
 chatNewMessage.onclick = scrollScreen;
 
 const processMessage = ({ data }) => {
-  const { userId, userName, userColor, content, action } = JSON.parse(data);
+  try {
+    const { userId, userName, userColor, content, action } = JSON.parse(data);
 
-  if (action !== "message") {
-    return;
-  }
+    if (action === 'start-roulette') {
+      // Lógica para iniciar a roleta
+      // Exemplo: exibir uma mensagem na área de mensagens
+      addMessageToChat(userName, userColor, 'Iniciou a roleta!');
+    } else if (action === 'audio') {
+      // Lógica para lidar com mensagens de áudio
+      const audioPlayer = new Audio();
+      audioPlayer.controls = true;
+      audioPlayer.title = userName;
 
-  const message =
-    userId == user.id
-      ? createMessageSelfElement(content)
-      : createMessageOtherElement(content, userName, userColor);
+      const container = document.createElement('div');
+      container.className = 'audio-container';
+      container.appendChild(audioPlayer);
+      chatMessages.appendChild(container);
 
-  chatMessages.appendChild(message);
+      const receivedBlob = new Blob([content], { type: 'audio/wav' });
+      const audioUrl = URL.createObjectURL(receivedBlob);
 
-  if (window.scrollY < CHAT_MESSAGE_SCROLL) {
-    chatNewMessage.style.display = "flex";
-    playNotificationSound();
-  } else {
-    chatNewMessage.style.display = "none";
+      audioPlayer.src = audioUrl;
+      audioPlayer.play();
+
+      // Exemplo: exibir uma mensagem na área de mensagens
+      addMessageToChat(userName, userColor, 'enviou um áudio', true);
+    } else if (action === 'chat') {
+      // Lógica para mensagens normais do chat
+      const message = userId === user.id
+        ? createMessageSelfElement(content)
+        : createMessageOtherElement(content, userName, userColor);
+
+      chatMessages.appendChild(message);
+
+      if (window.scrollY < CHAT_MESSAGE_SCROLL) {
+        chatNewMessage.style.display = 'flex';
+        playNotificationSound();
+      } else {
+        chatNewMessage.style.display = 'none';
+      }
+    }
+  } catch (error) {
+    console.error('Erro ao processar mensagem JSON:', error);
   }
 };
+
 
 const handleLogin = (event) => {
   event.preventDefault();
@@ -115,17 +141,23 @@ const handleLogin = (event) => {
 const sendMessage = (event) => {
   event.preventDefault();
 
-  const message = {
-    userId: user.id,
-    userName: user.name,
-    userColor: user.color,
-    content: chatInput.value,
-    action: "chat",
-  };
+  const messageContent = chatInput.value.trim();
 
-  websocket.send(JSON.stringify(message));
+  // Remova a verificação para mensagens vazias
+  // Mantenha a verificação para outros tipos de conteúdo (por exemplo, texto)
+  if (messageContent !== "" || chatInput.files?.length > 0) {
+    const message = {
+      userId: user.id,
+      userName: user.name,
+      userColor: user.color,
+      content: messageContent,
+      action: "chat",
+    };
 
-  chatInput.value = "";
+    websocket.send(JSON.stringify(message));
+
+    chatInput.value = "";
+  }
 };
 
 loginForm.addEventListener("submit", handleLogin);
@@ -136,3 +168,6 @@ document.addEventListener("scroll", () => {
     chatNewMessage.style.display = "none";
   }
 });
+
+
+*/

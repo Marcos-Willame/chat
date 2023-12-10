@@ -1,3 +1,43 @@
+// Defina a função handleAudioBlob no início do arquivo
+function handleAudioBlob(blob) {
+  const audioUrl = URL.createObjectURL(blob);
+
+  // Criar um novo elemento de áudio
+  const audioPlayer = new Audio(audioUrl);
+  audioPlayer.controls = true;
+
+  // Limpar o conteúdo do contêiner de áudio
+  audioContainer.innerHTML = '';
+
+  // Adicionar o elemento de áudio ao contêiner de áudio
+  const container = document.createElement("div");
+  container.className = 'audio-container';
+  container.appendChild(audioPlayer);
+  audioContainer.appendChild(container);
+
+  // Reproduzir o áudio
+  audioPlayer.play();
+
+  // Envie a mensagem de áudio para o WebSocket apenas se não houver uma já em andamento
+  if (!isAudioBeingSent) {
+    isAudioBeingSent = true;  // Marcar que o áudio está sendo enviado
+
+    // Envie a mensagem de áudio para o WebSocket
+    sendAudioMessage(blob);
+  }
+}
+
+// Adicione esta variável para controlar se o áudio está sendo enviado
+let isAudioBeingSent = false;
+
+// Adicione esta função para enviar a mensagem de áudio para o WebSocket
+function sendAudioMessage(blob) {
+  socket.send(blob);
+
+  // Quando a mensagem é enviada, redefina a variável para permitir o envio de áudio novamente
+  isAudioBeingSent = false;
+}
+
 const socket = new WebSocket(WS_URL);
 
 const rouletteGameEl = document.querySelector(".container");
@@ -15,6 +55,8 @@ const characters = {
     "Você prefere sair para comer fora com o parceiro ou pedir e comer em casa? ",
     "Você já chegou a gostar de mim como um parceiro romântico?",
   ],
+
+
   2: [
     "Já esteve em uma friend zone?",
     "O que te faz confiar em alguém?",
@@ -217,24 +259,35 @@ function handleRouletteResult(data) {
   }, 5000);
 }
 
-socket.onmessage = (event) => {
-  const data = JSON.parse(event.data);
+socket.addEventListener("message", (event) => {
+  try {
+    // Verificar se a mensagem é um objeto JSON
+    if (typeof event.data === 'string') {
+      const data = JSON.parse(event.data);
 
-  if (data.action === "result") {
-    handleRouletteResult(data);
+      if (data.action === "result") {
+        handleRouletteResult(data);
+      }
+    } else {
+      // Se não for JSON, é uma mensagem de áudio, então apenas ignore
+    }
+  } catch (error) {
+    console.error("Error parsing WebSocket message:", error);
   }
-};
+});
 
-socket.onopen = () => {
+socket.addEventListener("open", () => {
   console.info("Conexão estabelecida com o servidor WebSocket");
-};
+});
 
-socket.onerror = (error) => {
+socket.addEventListener("error", (error) => {
   console.error(`Erro na conexão WebSocket: ${error}`);
-};
+});
 
-socket.onclose = () => {
+socket.addEventListener("close", () => {
   console.info("Conexão fechada");
-};
+});
 
-window.onbeforeunload = socket.close;
+window.addEventListener("beforeunload", () => {
+  socket.close();
+});

@@ -181,19 +181,50 @@
   color: cadetblue;
 }
 
-#new-message {
+#recordingButton {
+  background-image: url(../images/CorujaMicrofone.jpg);
+  background-size: cover; /* Ajusta o tamanho da imagem para cobrir todo o botão */
+  display: inline-block;
+  padding: 15px 15px;
+  font-size: 15px;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  color: white; /* Cor do texto no botão */
+  border-radius: 100px; /* Borda arredondada - ajuste conforme necessário */ 
+}
+
+#new-message{
+  background-image: url(../images/CuteMensagem.jpg);
+  background-size: 100% 130%; /* Ajustado para cobrir completamente o botão */
+  background-repeat: no-repeat;
   display: none;
+  padding: 30px 30px;
   position: fixed;
   bottom: 120px;
   right: 12px;
   cursor: pointer;
-  background-color: #212121;
   color: #fff;
-  border-radius: 6px;
-  padding: 8px 12px;
+  border-radius: 100px;
   border: none;
   outline: none;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 15px;
   letter-spacing: 0.25px;
+}
+
+#setaBaixo{
+  background-image: url(../images/setasbaixo.png);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  padding: 15px 30px;
+  display: none;
+  width: 10px;
+  height: auto;
+  margin-top: 15px;
+  position: fixed;
+  bottom: 90px;
+  right: 12px;
+
 }
