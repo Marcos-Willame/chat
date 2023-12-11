@@ -149,8 +149,29 @@ const processMessage = ({ data }) => {
       }
     } else if (action === 'audio') {
       // Processar dados de áudio
-      // Adicione a mensagem de áudio ao chat
-      addMessageToChat(userName, userColor, 'enviou um áudio', false);
+      // Verificar se o áudio já existe no chat para evitar duplicações
+      if (!audioContainer.querySelector(`[title="${userName}"]`)) {
+        // Adicione a mensagem de áudio ao chat
+        addMessageToChat(userName, userColor, 'enviou um áudio', false);
+
+        // Criar um novo elemento de áudio
+        const audioPlayer = new Audio();
+        audioPlayer.controls = true;
+        audioPlayer.title = userName;
+
+        // Adicionar o elemento de áudio ao contêiner
+        const container = document.createElement('div');
+        container.className = 'audio-container';
+        container.appendChild(audioPlayer);
+        audioContainer.appendChild(container);
+
+        const receivedBlob = new Blob([data], { type: 'audio/wav' });
+        const audioUrl = URL.createObjectURL(receivedBlob);
+
+        audioPlayer.src = audioUrl;
+        audioPlayer.play();
+      }
+
       // Verifique se o usuário não está rolando a tela
       if (window.scrollY < CHAT_MESSAGE_SCROLL) {
         // Exiba o botão "new-message" apenas quando estiver fora do chat
