@@ -82,21 +82,51 @@ const scrollScreen = () => {
 chatNewMessage.onclick = scrollScreen;
 
 
-const addMessageToChat = (sender, color, content, isSelf) => {
+const addMessageToChat = (userName, userColor, content, isAudio = false, isSelf = false) => {
   const messageContainer = document.createElement('div');
   messageContainer.classList.add(isSelf ? 'message--self' : 'message--other');
 
-  if (!isSelf) {
+  if (!isSelf && !isAudio) {
     const senderSpan = document.createElement('span');
     senderSpan.classList.add('message--sender');
-    senderSpan.style.color = color;
-    senderSpan.textContent = sender + ': ';
+    senderSpan.style.color = userColor;
+    senderSpan.textContent = userName + ': ';
     messageContainer.appendChild(senderSpan);
   }
 
-  const messageContent = document.createElement('div');
-  messageContent.textContent = content;
-  messageContainer.appendChild(messageContent);
+  if (isAudio) {
+    // Verificar se o áudio já existe no chat para evitar duplicações
+    if (!audioContainer.querySelector(`[title="${userName}"]`)) {
+      const audioMessageContent = 'enviou um áudio';
+
+      // Adicionar o nome da pessoa acima do áudio
+      const audioSenderSpan = document.createElement('span');
+      audioSenderSpan.classList.add('message--audio-sender');
+      audioSenderSpan.style.color = userColor;
+      audioSenderSpan.textContent = userName + ': ';
+      messageContainer.appendChild(audioSenderSpan);
+
+      // Criar o elemento de áudio
+      const audioPlayer = new Audio();
+      audioPlayer.controls = true;
+      audioPlayer.title = userName;
+
+      const audioContainer = document.createElement('div');
+      audioContainer.className = 'audio-container';
+      audioContainer.appendChild(audioPlayer);
+      messageContainer.appendChild(audioContainer);
+
+      const receivedBlob = new Blob([content], { type: 'audio/wav' });
+      const audioUrl = URL.createObjectURL(receivedBlob);
+
+      audioPlayer.src = audioUrl;
+      audioPlayer.play();
+    }
+  } else {
+    const messageContent = document.createElement('div');
+    messageContent.textContent = content;
+    messageContainer.appendChild(messageContent);
+  }
 
   chatMessages.appendChild(messageContainer);
 };
@@ -278,27 +308,28 @@ const startRecording = async () => {
 
     mediaRecorder = new MediaRecorder(stream);
 
+    let audioPlayer; // Manter uma referência para o elemento de áudio
+
     mediaRecorder.ondataavailable = async (event) => {
       if (event.data.size > 0) {
-        // Criar um novo elemento de áudio
-        const audioPlayer = new Audio();
-        audioPlayer.controls = true;
-        audioPlayer.title = username;
+        // Utilizar o mesmo elemento de áudio
+        if (!audioPlayer) {
+          audioPlayer = new Audio();
+          audioPlayer.controls = true;
+          audioPlayer.title = username;
 
-        // Adicionar o elemento de áudio ao contêiner
-        const container = document.createElement('div');
-        container.className = 'audio-container';
-        container.appendChild(audioPlayer);
-        audioContainer.appendChild(container);
+          const audioContainer = document.createElement('div');
+          audioContainer.className = 'audio-container';
+          audioContainer.appendChild(audioPlayer);
+
+          chatMessages.appendChild(audioContainer);
+        }
 
         // Carregar o Blob recebido no elemento de áudio
         const receivedBlob = new Blob([event.data], { type: 'audio/wav' });
         const audioUrl = URL.createObjectURL(receivedBlob);
         await audioPlayer.load();
         audioPlayer.src = audioUrl;
-
-        // Adicione o áudio local ao Map para evitar duplicação
-        localAudios.set(audioPlayer, true);
 
         // Enviar dados de áudio para o servidor
         ws.send(event.data);
@@ -308,14 +339,7 @@ const startRecording = async () => {
       }
     };
 
-    mediaRecorder.onstop = () => {
-      // Parar a gravação e limpar
-      mediaRecorder.stream.getTracks().forEach((track) => {
-        track.stop();
-      });
-    };
-
-    mediaRecorder.start();
+    // ...
   } catch (error) {
     console.error('Erro ao acessar o microfone:', error);
   }
