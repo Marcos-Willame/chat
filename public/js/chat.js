@@ -1,4 +1,5 @@
 //chat.js
+
 // login elements
 const login = document.querySelector(".login");
 const loginForm = login.querySelector(".login__form");
@@ -11,7 +12,6 @@ const chatInput = chat.querySelector(".chat__input");
 const chatMessages = chat.querySelector(".chat__messages");
 
 const chatNewMessage = document.querySelector("#new-message");
-const setaBaixodupla = document.querySelector("#setaBaixo")
 
 const CHAT_MESSAGE_SCROLL = 200;
 
@@ -77,54 +77,41 @@ const scrollScreen = () => {
 chatNewMessage.onclick = scrollScreen;
 
 const processMessage = ({ data }) => {
+  // Se a mensagem não for uma string, ignore-a
+  if (typeof data !== 'string') {
+    // Se o tipo for Blob (áudio), retorne sem processar
+    if (data instanceof Blob) {
+      return;
+    }
+
+    console.error('Tipo de mensagem não suportado:', data);
+    return;
+  }
+
   try {
     const { userId, userName, userColor, content, action } = JSON.parse(data);
 
-    if (action === 'start-roulette') {
-      // Lógica para iniciar a roleta
-      // Exemplo: exibir uma mensagem na área de mensagens
-      addMessageToChat(userName, userColor, 'Iniciou a roleta!');
-    } else if (action === 'audio') {
-      // Lógica para lidar com mensagens de áudio
-      const audioPlayer = new Audio();
-      audioPlayer.controls = true;
-      audioPlayer.title = userName;
+    if (action !== "message") {
+      return;
+    }
 
-      const container = document.createElement('div');
-      container.className = 'audio-container';
-      container.appendChild(audioPlayer);
-      chatMessages.appendChild(container);
-
-      const receivedBlob = new Blob([content], { type: 'audio/wav' });
-      const audioUrl = URL.createObjectURL(receivedBlob);
-
-      audioPlayer.src = audioUrl;
-      audioPlayer.play();
-
-      // Exemplo: exibir uma mensagem na área de mensagens
-      addMessageToChat(userName, userColor, 'enviou um áudio', true);
-    } else if (action === 'chat') {
-      // Lógica para mensagens normais do chat
-      const message = userId === user.id
+    const message =
+      userId == user.id
         ? createMessageSelfElement(content)
         : createMessageOtherElement(content, userName, userColor);
 
-      chatMessages.appendChild(message);
+    chatMessages.appendChild(message);
 
-      if (window.scrollY < CHAT_MESSAGE_SCROLL) {
-        chatNewMessage.style.display = 'flex';
-        setaBaixodupla.style.display = 'flex';
-        playNotificationSound();
-      } else {
-        chatNewMessage.style.display = 'none';
-        setaBaixodupla.style.display = 'none';
-      }
+    if (window.scrollY < CHAT_MESSAGE_SCROLL) {
+      chatNewMessage.style.display = "flex";
+      playNotificationSound();
+    } else {
+      chatNewMessage.style.display = "none";
     }
   } catch (error) {
     console.error('Erro ao processar mensagem JSON:', error);
   }
 };
-
 
 const handleLogin = (event) => {
   event.preventDefault();
@@ -168,7 +155,8 @@ chatForm.addEventListener("submit", sendMessage);
 document.addEventListener("scroll", () => {
   if (window.scrollY >= CHAT_MESSAGE_SCROLL) {
     chatNewMessage.style.display = "none";
-    setaBaixodupla.style.display = "none";
   }
 });
+
+
 
