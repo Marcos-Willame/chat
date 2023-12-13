@@ -55,7 +55,7 @@ const addMessageToChat = (userName, userColor, content, isAudio = false, isSelf 
 
 
 const initWebSocket = () => {
-  ws = new WebSocket('ws://localhost:8080');
+  ws = new WebSocket(WS_URL);
 
   ws.onopen = () => {
     console.log('WebSocket conectado.');
