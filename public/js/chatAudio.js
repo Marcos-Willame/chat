@@ -308,38 +308,25 @@ const startRecording = async () => {
 
     mediaRecorder = new MediaRecorder(stream);
 
-    let audioPlayer; // Manter uma referência para o elemento de áudio
-
     mediaRecorder.ondataavailable = async (event) => {
       if (event.data.size > 0) {
-        // Utilizar o mesmo elemento de áudio
-        if (!audioPlayer) {
-          audioPlayer = new Audio();
-          audioPlayer.controls = true;
-          audioPlayer.title = username;
+        const audioMessageContent = 'enviou um áudio';
 
-          const audioContainer = document.createElement('div');
-          audioContainer.className = 'audio-container';
-          audioContainer.appendChild(audioPlayer);
-
-          chatMessages.appendChild(audioContainer);
-        }
-
-        // Carregar o Blob recebido no elemento de áudio
-        const receivedBlob = new Blob([event.data], { type: 'audio/wav' });
-        const audioUrl = URL.createObjectURL(receivedBlob);
-        await audioPlayer.load();
-        audioPlayer.src = audioUrl;
+        // Adicione a mensagem de áudio ao chat
+        addMessageToChat(username, userColor, audioMessageContent, true);
 
         // Enviar dados de áudio para o servidor
         ws.send(event.data);
-
-        // Adicione a mensagem de áudio ao chat
-        addMessageToChat(username, user.color, 'enviou um áudio', true);
       }
     };
 
-    // ...
+    mediaRecorder.onstop = () => {
+      mediaRecorder.stream.getTracks().forEach((track) => {
+        track.stop();
+      });
+    };
+
+    mediaRecorder.start();
   } catch (error) {
     console.error('Erro ao acessar o microfone:', error);
   }
