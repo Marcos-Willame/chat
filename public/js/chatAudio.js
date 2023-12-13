@@ -307,7 +307,6 @@ const startRecording = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
     mediaRecorder = new MediaRecorder(stream);
-
     const chunks = []; // Armazenar partes do áudio
 
     mediaRecorder.ondataavailable = (event) => {
@@ -319,11 +318,19 @@ const startRecording = async () => {
 
     mediaRecorder.onstop = async () => {
       if (chunks.length > 0) {
-        // Se houver partes do áudio, criar um Blob e enviá-lo
         const audioBlob = new Blob(chunks, { type: 'audio/wav' });
-        ws.send(audioBlob);
+
+        // Verificar se é um áudio vazio antes de enviar
+        if (audioBlob.size > 0) {
+          ws.send(audioBlob);
+
+          // Adicione a mensagem de áudio ao chat
+          addMessageToChat(username, userColor, 'enviou um áudio', true);
+        }
+
         chunks.length = 0; // Limpar partes do áudio
       }
+
       mediaRecorder.stream.getTracks().forEach((track) => {
         track.stop();
       });
