@@ -96,9 +96,7 @@ const addMessageToChat = (userName, userColor, content, isAudio = false, isSelf 
 
   if (isAudio) {
     // Verificar se o áudio já existe no chat para evitar duplicações
-    if (!audioContainer.querySelector(`[title="${userName}"]`)) {
-      const audioMessageContent = 'enviou um áudio';
-
+    if (!chatMessages.querySelector(`[title="${userName}"]`)) {
       // Adicionar o nome da pessoa acima do áudio
       const audioSenderSpan = document.createElement('span');
       audioSenderSpan.classList.add('message--audio-sender');
@@ -294,14 +292,14 @@ const startRecording = async () => {
     mediaRecorder.onstop = async () => {
       if (chunks.length > 0) {
         const audioBlob = new Blob(chunks, { type: 'audio/wav' });
-
+    
         if (audioBlob.size > 0) {
           ws.send(audioBlob);
         }
-
+    
         chunks.length = 0; // Limpar partes do áudio
       }
-
+    
       mediaRecorder.stream.getTracks().forEach((track) => {
         track.stop();
       });
