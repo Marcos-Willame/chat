@@ -7,7 +7,7 @@ let username;
 const localAudios = new Map(); // Use um Map para mapear IDs de áudio para elementos de áudio
 
 const initWebSocket = () => {
-  ws = new WebSocket('ws://localhost:8080');
+  ws = new WebSocket(WS_URL);
 
   ws.onopen = () => {
     console.log('WebSocket conectado.');
