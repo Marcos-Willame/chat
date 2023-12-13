@@ -1,4 +1,3 @@
-/*
 //chat.js
 // login elements
 const login = document.querySelector(".login");
@@ -12,6 +11,7 @@ const chatInput = chat.querySelector(".chat__input");
 const chatMessages = chat.querySelector(".chat__messages");
 
 const chatNewMessage = document.querySelector("#new-message");
+const setaBaixodupla = document.querySelector("#setaBaixo")
 
 const CHAT_MESSAGE_SCROLL = 200;
 
@@ -113,9 +113,11 @@ const processMessage = ({ data }) => {
 
       if (window.scrollY < CHAT_MESSAGE_SCROLL) {
         chatNewMessage.style.display = 'flex';
+        setaBaixodupla.style.display = 'flex';
         playNotificationSound();
       } else {
         chatNewMessage.style.display = 'none';
+        setaBaixodupla.style.display = 'none';
       }
     }
   } catch (error) {
@@ -166,8 +168,7 @@ chatForm.addEventListener("submit", sendMessage);
 document.addEventListener("scroll", () => {
   if (window.scrollY >= CHAT_MESSAGE_SCROLL) {
     chatNewMessage.style.display = "none";
+    setaBaixodupla.style.display = "none";
   }
 });
 
-
-*/

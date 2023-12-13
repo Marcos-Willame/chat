@@ -96,7 +96,9 @@ const addMessageToChat = (userName, userColor, content, isAudio = false, isSelf 
 
   if (isAudio) {
     // Verificar se o áudio já existe no chat para evitar duplicações
-    if (!chatMessages.querySelector(`[title="${userName}"]`)) {
+    if (!audioContainer.querySelector(`[title="${userName}"]`)) {
+      const audioMessageContent = 'enviou um áudio';
+
       // Adicionar o nome da pessoa acima do áudio
       const audioSenderSpan = document.createElement('span');
       audioSenderSpan.classList.add('message--audio-sender');
@@ -132,6 +134,7 @@ const addMessageToChat = (userName, userColor, content, isAudio = false, isSelf 
 const processMessage = ({ data }) => {
   if (typeof data !== 'string') {
     if (data instanceof Blob) {
+      // Processar dados de áudio
       const audioPlayer = new Audio();
       audioPlayer.controls = true;
       audioPlayer.title = user.name;
@@ -158,10 +161,25 @@ const processMessage = ({ data }) => {
   }
 
   try {
-    // ...
+    const { userId, userName, userColor, content, action } = JSON.parse(data);
 
-    if (action === 'audio') {
+    if (action === 'message') {
+      // Processar mensagens de chat
+      const isSelf = userId === user.id;
+      addMessageToChat(userName, userColor, content, isSelf);
+
+      if (!isSelf) {
+        // Verifique se o usuário não está rolando a tela
+        if (window.scrollY < CHAT_MESSAGE_SCROLL) {
+          // Exiba o botão "new-message" apenas quando estiver fora do chat
+          chatNewMessage.style.display = 'flex';
+          setaDuplaBaixo.style.display = 'flex';
+          playNotificationSound();
+        }
+      }
+    } else if (action === 'audio') {
       // Processar dados de áudio
+      // Verificar se o áudio já existe no chat para evitar duplicações
       if (!audioContainer.querySelector(`[title="${userName}"]`)) {
         // Adicione a mensagem de áudio ao chat
         addMessageToChat(userName, userColor, 'enviou um áudio', false);
@@ -171,11 +189,11 @@ const processMessage = ({ data }) => {
         audioPlayer.controls = true;
         audioPlayer.title = userName;
 
-        // Adicionar o elemento de áudio ao contêiner de mensagens
+        // Adicionar o elemento de áudio ao contêiner
         const container = document.createElement('div');
         container.className = 'audio-container';
         container.appendChild(audioPlayer);
-        chatMessages.appendChild(container);
+        audioContainer.appendChild(container);
 
         const receivedBlob = new Blob([data], { type: 'audio/wav' });
         const audioUrl = URL.createObjectURL(receivedBlob);
@@ -183,11 +201,20 @@ const processMessage = ({ data }) => {
         audioPlayer.src = audioUrl;
         audioPlayer.play();
       }
+
+      // Verifique se o usuário não está rolando a tela
+      if (window.scrollY < CHAT_MESSAGE_SCROLL) {
+        // Exiba o botão "new-message" apenas quando estiver fora do chat
+        chatNewMessage.style.display = 'flex';
+        setaDuplaBaixo.style.display = 'flex';
+      }
     }
   } catch (error) {
     console.error('Erro ao processar mensagem JSON:', error);
   }
 };
+
+
 
 const handleLogin = (event) => {
   event.preventDefault();
@@ -275,37 +302,44 @@ const initWebSocket = () => {
   };
 };
 
-const chunks = []; // Mover a declaração de chunks para um escopo mais amplo
-
 const startRecording = async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
     mediaRecorder = new MediaRecorder(stream);
 
-    mediaRecorder.ondataavailable = (event) => {
+    let audioPlayer; // Manter uma referência para o elemento de áudio
+
+    mediaRecorder.ondataavailable = async (event) => {
       if (event.data.size > 0) {
-        chunks.push(event.data);
-      }
-    };
+        // Utilizar o mesmo elemento de áudio
+        if (!audioPlayer) {
+          audioPlayer = new Audio();
+          audioPlayer.controls = true;
+          audioPlayer.title = username;
 
-    mediaRecorder.onstop = async () => {
-      if (chunks.length > 0) {
-        const audioBlob = new Blob(chunks, { type: 'audio/wav' });
-    
-        if (audioBlob.size > 0) {
-          ws.send(audioBlob);
+          const audioContainer = document.createElement('div');
+          audioContainer.className = 'audio-container';
+          audioContainer.appendChild(audioPlayer);
+
+          chatMessages.appendChild(audioContainer);
         }
-    
-        chunks.length = 0; // Limpar partes do áudio
+
+        // Carregar o Blob recebido no elemento de áudio
+        const receivedBlob = new Blob([event.data], { type: 'audio/wav' });
+        const audioUrl = URL.createObjectURL(receivedBlob);
+        await audioPlayer.load();
+        audioPlayer.src = audioUrl;
+
+        // Enviar dados de áudio para o servidor
+        ws.send(event.data);
+
+        // Adicione a mensagem de áudio ao chat
+        addMessageToChat(username, user.color, 'enviou um áudio', true);
       }
-    
-      mediaRecorder.stream.getTracks().forEach((track) => {
-        track.stop();
-      });
     };
 
-    mediaRecorder.start();
+    // ...
   } catch (error) {
     console.error('Erro ao acessar o microfone:', error);
   }

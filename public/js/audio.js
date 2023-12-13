@@ -1,4 +1,3 @@
-/*
 // audio.js
 const audioContainer = document.getElementById('audioContainer');
 const recordingButton = document.getElementById('recordingButton');
@@ -136,5 +135,5 @@ const setUsername = () => {
 };
 
 initWebSocket();
-*/
+
 
