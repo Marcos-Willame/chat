@@ -308,19 +308,22 @@ const startRecording = async () => {
 
     mediaRecorder = new MediaRecorder(stream);
 
-    mediaRecorder.ondataavailable = async (event) => {
+    const chunks = []; // Armazenar partes do áudio
+
+    mediaRecorder.ondataavailable = (event) => {
       if (event.data.size > 0) {
-        const audioMessageContent = 'enviou um áudio';
-
-        // Adicione a mensagem de áudio ao chat
-        addMessageToChat(username, userColor, audioMessageContent, true);
-
-        // Enviar dados de áudio para o servidor
-        ws.send(event.data);
+        // Armazenar partes não vazias do áudio
+        chunks.push(event.data);
       }
     };
 
-    mediaRecorder.onstop = () => {
+    mediaRecorder.onstop = async () => {
+      if (chunks.length > 0) {
+        // Se houver partes do áudio, criar um Blob e enviá-lo
+        const audioBlob = new Blob(chunks, { type: 'audio/wav' });
+        ws.send(audioBlob);
+        chunks.length = 0; // Limpar partes do áudio
+      }
       mediaRecorder.stream.getTracks().forEach((track) => {
         track.stop();
       });
