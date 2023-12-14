@@ -12,9 +12,6 @@ const chatInput = chat.querySelector(".chat__input");
 const chatMessages = chat.querySelector(".chat__messages");
 
 const chatNewMessage = document.querySelector("#new-message");
-const setaDuplaBaixo = document.querySelector("#setaBaixo");
-
-const audioContainer = document.getElementById('audioContainer');
 
 const CHAT_MESSAGE_SCROLL = 200;
 
@@ -30,6 +27,8 @@ const colors = [
 const user = { id: "", name: "", color: "" };
 
 let websocket;
+let mediaRecorder;
+let localAudios = new Map(); // Mantenha um controle de áudios locais
 
 const createMessageSelfElement = (content) => {
   const div = document.createElement("div");
@@ -75,84 +74,33 @@ const scrollScreen = () => {
   });
 
   chatNewMessage.style.display = "none";
-  setaDuplaBaixo.style.display = "none";
-  
 };
 
 chatNewMessage.onclick = scrollScreen;
 
-
-const addMessageToChat = (userName, userColor, content, isAudio = false, isSelf = false) => {
-  const messageContainer = document.createElement('div');
-  messageContainer.classList.add(isSelf ? 'message--self' : 'message--other');
-
-  if (!isSelf && !isAudio) {
-    const senderSpan = document.createElement('span');
-    senderSpan.classList.add('message--sender');
-    senderSpan.style.color = userColor;
-    senderSpan.textContent = userName + ': ';
-    messageContainer.appendChild(senderSpan);
-  }
-
-  if (isAudio) {
-    // Verificar se o áudio já existe no chat para evitar duplicações
-    if (!audioContainer.querySelector(`[title="${userName}"]`)) {
-      const audioMessageContent = 'enviou um áudio';
-
-      // Adicionar o nome da pessoa acima do áudio
-      const audioSenderSpan = document.createElement('span');
-      audioSenderSpan.classList.add('message--audio-sender');
-      audioSenderSpan.style.color = userColor;
-      audioSenderSpan.textContent = userName + ': ';
-      messageContainer.appendChild(audioSenderSpan);
-
-      // Criar o elemento de áudio
-      const audioPlayer = new Audio();
-      audioPlayer.controls = true;
-      audioPlayer.title = userName;
-
-      const audioContainer = document.createElement('div');
-      audioContainer.className = 'audio-container';
-      audioContainer.appendChild(audioPlayer);
-      messageContainer.appendChild(audioContainer);
-
-      const receivedBlob = new Blob([content], { type: 'audio/wav' });
-      const audioUrl = URL.createObjectURL(receivedBlob);
-
-      audioPlayer.src = audioUrl;
-      audioPlayer.play();
-    }
-  } else {
-    const messageContent = document.createElement('div');
-    messageContent.textContent = content;
-    messageContainer.appendChild(messageContent);
-  }
-
-  chatMessages.appendChild(messageContainer);
-};
-
 const processMessage = ({ data }) => {
+  // Se a mensagem não for uma string, ignore-a
   if (typeof data !== 'string') {
+    // Se o tipo for Blob (áudio), retorne sem processar
     if (data instanceof Blob) {
-      // Processar dados de áudio
-      const audioPlayer = new Audio();
+      // Tratar dados de áudio recebidos do servidor
+      const receivedBlob = new Blob([data], { type: 'audio/wav' });
+      const receivedAudioUrl = URL.createObjectURL(receivedBlob);
+
+      // Criar um novo elemento de áudio
+      const audioPlayer = new Audio(receivedAudioUrl);
       audioPlayer.controls = true;
       audioPlayer.title = user.name;
 
+      // Adicionar o elemento de áudio ao contêiner
       const container = document.createElement('div');
       container.className = 'audio-container';
       container.appendChild(audioPlayer);
-      audioContainer.appendChild(container);
+      chatMessages.appendChild(container);
 
-      const receivedBlob = new Blob([data], { type: 'audio/wav' });
-      const audioUrl = URL.createObjectURL(receivedBlob);
-
-      audioPlayer.src = audioUrl;
+      // Reproduzir o áudio
       audioPlayer.play();
-
-      // Adicione a mensagem de áudio ao chat
-      addMessageToChat(user.name, user.color, 'enviou um áudio', true);
-
+      
       return;
     }
 
@@ -163,58 +111,27 @@ const processMessage = ({ data }) => {
   try {
     const { userId, userName, userColor, content, action } = JSON.parse(data);
 
-    if (action === 'message') {
-      // Processar mensagens de chat
-      const isSelf = userId === user.id;
-      addMessageToChat(userName, userColor, content, isSelf);
+    if (action !== "message") {
+      return;
+    }
 
-      if (!isSelf) {
-        // Verifique se o usuário não está rolando a tela
-        if (window.scrollY < CHAT_MESSAGE_SCROLL) {
-          // Exiba o botão "new-message" apenas quando estiver fora do chat
-          chatNewMessage.style.display = 'flex';
-          setaDuplaBaixo.style.display = 'flex';
-          playNotificationSound();
-        }
-      }
-    } else if (action === 'audio') {
-      // Processar dados de áudio
-      // Verificar se o áudio já existe no chat para evitar duplicações
-      if (!audioContainer.querySelector(`[title="${userName}"]`)) {
-        // Adicione a mensagem de áudio ao chat
-        addMessageToChat(userName, userColor, 'enviou um áudio', false);
+    const message =
+      userId == user.id
+        ? createMessageSelfElement(content)
+        : createMessageOtherElement(content, userName, userColor);
 
-        // Criar um novo elemento de áudio
-        const audioPlayer = new Audio();
-        audioPlayer.controls = true;
-        audioPlayer.title = userName;
+    chatMessages.appendChild(message);
 
-        // Adicionar o elemento de áudio ao contêiner
-        const container = document.createElement('div');
-        container.className = 'audio-container';
-        container.appendChild(audioPlayer);
-        audioContainer.appendChild(container);
-
-        const receivedBlob = new Blob([data], { type: 'audio/wav' });
-        const audioUrl = URL.createObjectURL(receivedBlob);
-
-        audioPlayer.src = audioUrl;
-        audioPlayer.play();
-      }
-
-      // Verifique se o usuário não está rolando a tela
-      if (window.scrollY < CHAT_MESSAGE_SCROLL) {
-        // Exiba o botão "new-message" apenas quando estiver fora do chat
-        chatNewMessage.style.display = 'flex';
-        setaDuplaBaixo.style.display = 'flex';
-      }
+    if (window.scrollY < CHAT_MESSAGE_SCROLL) {
+      chatNewMessage.style.display = "flex";
+      playNotificationSound();
+    } else {
+      chatNewMessage.style.display = "none";
     }
   } catch (error) {
     console.error('Erro ao processar mensagem JSON:', error);
   }
 };
-
-
 
 const handleLogin = (event) => {
   event.preventDefault();
@@ -228,6 +145,13 @@ const handleLogin = (event) => {
 
   websocket = new WebSocket(WS_URL);
   websocket.onmessage = processMessage;
+};
+
+// Adapte esta função para parar a gravação e enviar a mensagem de áudio
+const stopRecording = () => {
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    mediaRecorder.stop();
+  }
 };
 
 const sendMessage = (event) => {
@@ -258,46 +182,47 @@ chatForm.addEventListener("submit", sendMessage);
 document.addEventListener("scroll", () => {
   if (window.scrollY >= CHAT_MESSAGE_SCROLL) {
     chatNewMessage.style.display = "none";
-    setaDuplaBaixo.style.display = 'none'
   }
 });
 
-const recordingButton = document.getElementById('recordingButton');
-let mediaRecorder;
-let ws;
-let username;
-const localAudios = new Map(); // Use um Map para mapear IDs de áudio para elementos de áudio
+//audio.js
+const audioButton = document.getElementById('audioButton');
+
+audioButton.addEventListener('click', () => {
+  if (mediaRecorder && mediaRecorder.state === 'inactive') {
+    startRecording();
+  } else {
+    stopRecording();
+  }
+});
 
 const initWebSocket = () => {
-  ws = new WebSocket(WS_URL);
+  websocket = new WebSocket(WS_URL);
 
-  ws.onopen = () => {
+  websocket.onopen = () => {
     console.log('WebSocket conectado.');
-    recordingButton.disabled = false;
+    audioButton.disabled = false;
   };
 
-  ws.onmessage = (event) => {
+  websocket.onmessage = (event) => {
     if (event.data instanceof Blob && event.data.size > 0) {
       // Tratar dados de áudio recebidos do servidor
       const receivedBlob = new Blob([event.data], { type: 'audio/wav' });
-      const audioUrl = URL.createObjectURL(receivedBlob);
+      const receivedAudioUrl = URL.createObjectURL(receivedBlob);
 
       // Criar um novo elemento de áudio
-      const audioPlayer = new Audio(audioUrl);
+      const audioPlayer = new Audio(receivedAudioUrl);
       audioPlayer.controls = true;
-      audioPlayer.title = username;
+      audioPlayer.title = user.name;
 
       // Adicionar o elemento de áudio ao contêiner
       const container = document.createElement('div');
       container.className = 'audio-container';
       container.appendChild(audioPlayer);
-      audioContainer.appendChild(container);
+      chatMessages.appendChild(container);
 
       // Reproduzir o áudio
       audioPlayer.play();
-
-      // Adicione a mensagem de áudio ao chat
-      addMessageToChat(username, user.color, 'enviou um áudio', true);
     }
   };
 };
@@ -308,22 +233,30 @@ const startRecording = async () => {
 
     mediaRecorder = new MediaRecorder(stream);
 
-    let audioPlayer; // Manter uma referência para o elemento de áudio
-
     mediaRecorder.ondataavailable = async (event) => {
       if (event.data.size > 0) {
-        // Utilizar o mesmo elemento de áudio
-        if (!audioPlayer) {
-          audioPlayer = new Audio();
-          audioPlayer.controls = true;
-          audioPlayer.title = username;
+        const messageContent = 'Audio Message'; // Mensagem a ser exibida no chat
+        const message = {
+          userId: user.id,
+          userName: user.name,
+          userColor: user.color,
+          content: messageContent,
+          action: 'chat', // Ação para o chat
+          audioData: event.data, // Adicione dados de áudio à mensagem
+        };
 
-          const audioContainer = document.createElement('div');
-          audioContainer.className = 'audio-container';
-          audioContainer.appendChild(audioPlayer);
+        websocket.send(JSON.stringify(message));
 
-          chatMessages.appendChild(audioContainer);
-        }
+        // Criar um novo elemento de áudio
+        const audioPlayer = new Audio();
+        audioPlayer.controls = true;
+        audioPlayer.title = user.name;
+
+        // Adicionar o elemento de áudio ao contêiner
+        const container = document.createElement('div');
+        container.className = 'audio-container';
+        container.appendChild(audioPlayer);
+        chatMessages.appendChild(container);
 
         // Carregar o Blob recebido no elemento de áudio
         const receivedBlob = new Blob([event.data], { type: 'audio/wav' });
@@ -331,37 +264,31 @@ const startRecording = async () => {
         await audioPlayer.load();
         audioPlayer.src = audioUrl;
 
-        // Enviar dados de áudio para o servidor
-        ws.send(event.data);
+        // Adicione o áudio local ao Map para evitar duplicação
+        localAudios.set(audioPlayer, true);
 
-        // Adicione a mensagem de áudio ao chat
-        addMessageToChat(username, user.color, 'enviou um áudio', true);
+        // Reproduzir o áudio local
+        audioPlayer.play();
       }
     };
 
-    // ...
+    mediaRecorder.onstop = () => {
+      // Parar a gravação e limpar
+      mediaRecorder.stream.getTracks().forEach((track) => {
+        track.stop();
+      });
+    };
+
+    mediaRecorder.start();
   } catch (error) {
     console.error('Erro ao acessar o microfone:', error);
   }
 };
 
-const stopRecording = () => {
-  if (mediaRecorder && mediaRecorder.state === 'recording') {
-    mediaRecorder.stop();
-  }
-};
-
-recordingButton.addEventListener('mousedown', () => {
-  startRecording();
-});
-
-recordingButton.addEventListener('mouseup', () => {
-  stopRecording();
-});
-
+// Adicione esta função para definir o nome de usuário quando solicitado
 const setUsername = () => {
-  username = prompt('Digite seu nome de usuário:');
+  user.name = prompt('Digite seu nome de usuário:');
 };
 
-setUsername();
+setUsername(); // Chame a função assim que a página for carregada para solicitar o nome de usuário
 initWebSocket();
