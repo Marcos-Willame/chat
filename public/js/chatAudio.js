@@ -128,21 +128,19 @@ const handleAudioMessage = (audioData) => {
   audioPlayer.play();
 };
 
-const handleLogin = (event) => {
-  event.preventDefault();
-
+const handleLogin = () => {
   if (!user) {
     user = {
       id: crypto.randomUUID(),
-      name: loginInput.value,
+      name: prompt('Digite seu nome de usuário:'),
       color: getRandomColor(),
     };
 
     websocket = new WebSocket(WS_URL);
     websocket.onmessage = processMessage;
 
-    login.style.display = "none";
-    chat.style.display = "flex";
+    login.style.display = 'none';
+    chat.style.display = 'flex';
   }
 };
 
@@ -181,10 +179,10 @@ document.addEventListener("scroll", () => {
   }
 });
 
-const audioButton = document.getElementById('recordingButton');
+const audioButton = document.getElementById("recordingButton");
 
-audioButton.addEventListener('click', () => {
-  if (mediaRecorder && mediaRecorder.state === 'inactive') {
+audioButton.addEventListener("click", () => {
+  if (mediaRecorder && mediaRecorder.state === "inactive") {
     startRecording();
   } else {
     stopRecording();
@@ -199,13 +197,13 @@ const startRecording = async () => {
 
     mediaRecorder.ondataavailable = async (event) => {
       if (event.data.size > 0) {
-        const messageContent = 'Audio Message';
+        const messageContent = "Audio Message";
         const message = {
           userId: user.id,
           userName: user.name,
           userColor: user.color,
           content: messageContent,
-          action: 'chat',
+          action: "chat",
           audioData: event.data,
         };
 
@@ -221,7 +219,7 @@ const startRecording = async () => {
 
     mediaRecorder.start();
   } catch (error) {
-    console.error('Erro ao acessar o microfone:', error);
+    console.error("Erro ao acessar o microfone:", error);
   }
 };
 
