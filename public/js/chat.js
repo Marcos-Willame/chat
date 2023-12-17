@@ -1,4 +1,5 @@
-/*//chat.js
+/*
+//chat.js
 
 // login elements
 const login = document.querySelector(".login");
@@ -156,7 +157,8 @@ document.addEventListener("scroll", () => {
   if (window.scrollY >= CHAT_MESSAGE_SCROLL) {
     chatNewMessage.style.display = "none";
   }
-});*/
+});
+*/
 
 
 // chat.js
