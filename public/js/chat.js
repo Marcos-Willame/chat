@@ -1,8 +1,11 @@
 // chat.js
+
+// login elements
 const login = document.querySelector(".login");
 const loginForm = login.querySelector(".login__form");
 const loginInput = login.querySelector(".login__input");
 
+// chat elements
 const chat = document.querySelector(".chat");
 const chatForm = chat.querySelector(".chat__form");
 const chatInput = chat.querySelector(".chat__input");
@@ -25,26 +28,42 @@ const user = { id: "", name: "", color: "" };
 
 let websocket;
 
-const createMessageElement = (content, sender, senderColor) => {
+const createMessageSelfElement = (content) => {
   const div = document.createElement("div");
 
-  div.classList.add("message");
-  if (sender) {
-    const span = document.createElement("span");
-    span.classList.add("message--sender");
-    span.style.color = senderColor;
-    span.innerHTML = sender;
-    div.appendChild(span);
-  }
+  div.classList.add("message--self");
+  div.innerHTML = content;
+
+  return div;
+};
+
+const createMessageOtherElement = (content, sender, senderColor) => {
+  const div = document.createElement("div");
+  const span = document.createElement("span");
+
+  div.classList.add("message--other");
+
+  span.classList.add("message--sender");
+  span.style.color = senderColor;
+
+  div.appendChild(span);
+
+  span.innerHTML = sender;
   div.innerHTML += content;
 
   return div;
 };
 
-const playNotificationSound = () => {
+const getRandomColor = () => {
+  const randomIndex = Math.floor(Math.random() * colors.length);
+  return colors[randomIndex];
+};
+
+// Função para reproduzir o som de notificação
+function playNotificationSound() {
   const notificationSound = document.getElementById('notificationSound');
   notificationSound.play();
-};
+}
 
 const scrollScreen = () => {
   window.scrollTo({
@@ -58,10 +77,13 @@ const scrollScreen = () => {
 chatNewMessage.onclick = scrollScreen;
 
 const processMessage = ({ data }) => {
+  // Se a mensagem não for uma string, ignore-a
   if (typeof data !== 'string') {
+    // Se o tipo for Blob (áudio), retorne sem processar
     if (data instanceof Blob) {
-      return; // Tratar dados de áudio em audio.js
+      return;
     }
+
     console.error('Tipo de mensagem não suportado:', data);
     return;
   }
@@ -69,18 +91,24 @@ const processMessage = ({ data }) => {
   try {
     const { userId, userName, userColor, content, action } = JSON.parse(data);
 
-    if (action !== "message") {
-      return;
-    }
+    if (action === "chat" || action === "audio") {
+      const isAudio = action === "audio";
 
-    const message = createMessageElement(content, userName, userColor);
-    chatMessages.appendChild(message);
+      const message =
+        userId === user.id
+          ? createMessageSelfElement(isAudio ? '<audio controls src="' + content + '"></audio>' : content)
+          : createMessageOtherElement(isAudio ? '<audio controls src="' + content + '"></audio>' : content, userName, userColor);
 
-    if (window.scrollY < CHAT_MESSAGE_SCROLL) {
-      chatNewMessage.style.display = "flex";
-      playNotificationSound();
+      chatMessages.appendChild(message);
+
+      if (!isAudio && window.scrollY < CHAT_MESSAGE_SCROLL) {
+        chatNewMessage.style.display = "flex";
+        playNotificationSound();
+      } else {
+        chatNewMessage.style.display = "none";
+      }
     } else {
-      chatNewMessage.style.display = "none";
+      console.error('Ação não reconhecida:', action);
     }
   } catch (error) {
     console.error('Erro ao processar mensagem JSON:', error);
@@ -92,7 +120,7 @@ const handleLogin = (event) => {
 
   user.id = crypto.randomUUID();
   user.name = loginInput.value;
-  user.color = colors[Math.floor(Math.random() * colors.length)];
+  user.color = getRandomColor();
 
   login.style.display = "none";
   chat.style.display = "flex";
@@ -106,13 +134,15 @@ const sendMessage = (event) => {
 
   const messageContent = chatInput.value.trim();
 
-  if (messageContent !== "") {
+  // Remova a verificação para mensagens vazias
+  // Mantenha a verificação para outros tipos de conteúdo (por exemplo, texto)
+  if (messageContent !== "" || chatInput.files?.length > 0) {
     const message = {
       userId: user.id,
       userName: user.name,
       userColor: user.color,
       content: messageContent,
-      action: "message",
+      action: "chat",
     };
 
     websocket.send(JSON.stringify(message));
@@ -129,5 +159,6 @@ document.addEventListener("scroll", () => {
     chatNewMessage.style.display = "none";
   }
 });
+
 
 
