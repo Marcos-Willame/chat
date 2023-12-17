@@ -4,6 +4,23 @@ let mediaRecorder;
 let ws;
 let username;
 
+const createAudioElement = (audioBlob, sender) => {
+  const receivedBlob = new Blob([audioBlob], { type: 'audio/wav' });
+  const receivedAudioUrl = URL.createObjectURL(receivedBlob);
+
+  const audioPlayer = new Audio(receivedAudioUrl);
+  audioPlayer.controls = true;
+  audioPlayer.title = sender;
+
+  const messageContainer = document.createElement('div');
+  messageContainer.classList.add('message');
+  messageContainer.classList.add(sender === username ? 'sent' : 'received'); // Adiciona classe 'sent' ou 'received' para estilização
+
+  messageContainer.appendChild(audioPlayer);
+
+  chatMessages.appendChild(messageContainer);
+};
+
 const initWebSocket = () => {
   ws = new WebSocket(WS_URL);
 
@@ -14,18 +31,7 @@ const initWebSocket = () => {
 
   ws.onmessage = (event) => {
     if (event.data instanceof Blob && event.data.size > 0) {
-      const receivedBlob = new Blob([event.data], { type: 'audio/wav' });
-      const receivedAudioUrl = URL.createObjectURL(receivedBlob);
-
-      const audioPlayer = new Audio(receivedAudioUrl);
-      audioPlayer.controls = true;
-      audioPlayer.title = username;
-
-      const messageContainer = document.createElement('div');
-      messageContainer.classList.add('message');
-      messageContainer.appendChild(audioPlayer);
-
-      chatMessages.appendChild(messageContainer);
+      createAudioElement(event.data, username);
     }
   };
 };
@@ -73,6 +79,4 @@ const setUsername = () => {
 };
 
 setUsername();
-initWebSocket();
-
-
+initWebSocket()
