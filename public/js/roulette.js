@@ -251,3 +251,5 @@ socket.addEventListener("close", () => {
 window.addEventListener("beforeunload", () => {
   socket.close();
 });
+
+
