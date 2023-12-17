@@ -24,11 +24,9 @@ const colors = [
   "gold",
 ];
 
-const user = { id: "", name: "", color: "" };
-
-let websocket;
 let mediaRecorder;
-let localAudios = new Map(); // Mantenha um controle de áudios locais
+let websocket;
+let user;
 
 const getRandomColor = () => {
   const randomIndex = Math.floor(Math.random() * colors.length);
@@ -61,7 +59,6 @@ const createMessageOtherElement = (content, sender, senderColor) => {
   return div;
 };
 
-// Função para reproduzir o som de notificação
 function playNotificationSound() {
   const notificationSound = document.getElementById('notificationSound');
   notificationSound.play();
@@ -79,29 +76,9 @@ const scrollScreen = () => {
 chatNewMessage.onclick = scrollScreen;
 
 const processMessage = ({ data }) => {
-  // Se a mensagem não for uma string, ignore-a
   if (typeof data !== 'string') {
-    // Se o tipo for Blob (áudio), retorne sem processar
     if (data instanceof Blob) {
-      // Tratar dados de áudio recebidos do servidor
-      const receivedBlob = new Blob([data], { type: 'audio/wav' });
-      const receivedAudioUrl = URL.createObjectURL(receivedBlob);
-
-      // Criar um novo elemento de áudio
-      const audioPlayer = new Audio(receivedAudioUrl);
-      audioPlayer.controls = true;
-      audioPlayer.title = user.name;
-
-      // Adicionar o elemento de áudio ao contêiner
-      const container = document.createElement('div');
-      container.className = 'message--other audio-container'; // Adicione classe audio-container à mensagem de áudio
-      container.style.color = user.color; // Adicione a cor do usuário à mensagem de áudio
-      container.appendChild(audioPlayer);
-      chatMessages.appendChild(container);
-
-      // Reproduzir o áudio
-      audioPlayer.play();
-      
+      handleAudioMessage(data);
       return;
     }
 
@@ -134,18 +111,39 @@ const processMessage = ({ data }) => {
   }
 };
 
+const handleAudioMessage = (audioData) => {
+  const receivedBlob = new Blob([audioData], { type: 'audio/wav' });
+  const receivedAudioUrl = URL.createObjectURL(receivedBlob);
+
+  const audioPlayer = new Audio(receivedAudioUrl);
+  audioPlayer.controls = true;
+  audioPlayer.title = user.name;
+
+  const container = document.createElement('div');
+  container.className = 'message--other audio-container';
+  container.style.color = user.color;
+  container.appendChild(audioPlayer);
+  chatMessages.appendChild(container);
+
+  audioPlayer.play();
+};
+
 const handleLogin = (event) => {
   event.preventDefault();
 
-  user.id = crypto.randomUUID();
-  user.name = loginInput.value;
-  user.color = getRandomColor();
+  if (!user) {
+    user = {
+      id: crypto.randomUUID(),
+      name: loginInput.value,
+      color: getRandomColor(),
+    };
 
-  login.style.display = "none";
-  chat.style.display = "flex";
+    websocket = new WebSocket(WS_URL);
+    websocket.onmessage = processMessage;
 
-  websocket = new WebSocket(WS_URL);
-  websocket.onmessage = processMessage;
+    login.style.display = "none";
+    chat.style.display = "flex";
+  }
 };
 
 const stopRecording = () => {
@@ -183,68 +181,15 @@ document.addEventListener("scroll", () => {
   }
 });
 
-
 const audioButton = document.getElementById('recordingButton');
 
-const initWebSocket = () => {
-  websocket = new WebSocket(WS_URL);
-
-  websocket.onopen = () => {
-    console.log('WebSocket conectado.');
-    audioButton.disabled = false;
-  };
-
-  websocket.onmessage = (event) => {
-    if (event.data instanceof Blob && event.data.size > 0) {
-      handleAudioMessage(event.data);
-    } else {
-      processChatMessage(event.data);
-    }
-  };
-};
-
-const handleAudioMessage = (audioData) => {
-  const receivedBlob = new Blob([audioData], { type: 'audio/wav' });
-  const receivedAudioUrl = URL.createObjectURL(receivedBlob);
-
-  const audioPlayer = new Audio(receivedAudioUrl);
-  audioPlayer.controls = true;
-  audioPlayer.title = user.name;
-
-  const container = document.createElement('div');
-  container.className = 'message--other audio-container';
-  container.style.color = user.color;
-  container.appendChild(audioPlayer);
-  chatMessages.appendChild(container);
-
-  audioPlayer.play();
-};
-
-const processChatMessage = (data) => {
-  try {
-    const { userId, userName, userColor, content, action } = JSON.parse(data);
-
-    if (action !== "message") {
-      return;
-    }
-
-    const message =
-      userId == user.id
-        ? createMessageSelfElement(content)
-        : createMessageOtherElement(content, userName, userColor);
-
-    chatMessages.appendChild(message);
-
-    if (window.scrollY < CHAT_MESSAGE_SCROLL) {
-      chatNewMessage.style.display = "flex";
-      playNotificationSound();
-    } else {
-      chatNewMessage.style.display = "none";
-    }
-  } catch (error) {
-    console.error('Erro ao processar mensagem JSON:', error);
+audioButton.addEventListener('click', () => {
+  if (mediaRecorder && mediaRecorder.state === 'inactive') {
+    startRecording();
+  } else {
+    stopRecording();
   }
-};
+});
 
 const startRecording = async () => {
   try {
@@ -280,24 +225,5 @@ const startRecording = async () => {
   }
 };
 
-audioButton.addEventListener('click', () => {
-  if (mediaRecorder && mediaRecorder.state === 'inactive') {
-    startRecording();
-  } else {
-    if (mediaRecorder && mediaRecorder.state === 'recording') {
-      mediaRecorder.stop();
-    }
-  }
-});
-
-// Adicione esta função para definir o nome de usuário quando solicitado
-const setUsername = () => {
-  user = {
-    id: crypto.randomUUID(),
-    name: prompt('Digite seu nome de usuário:'),
-    color: getRandomColor(),
-  };
-};
-
-setUsername();
-initWebSocket();
+// Chame a função assim que a página for carregada para solicitar o nome de usuário
+handleLogin();
