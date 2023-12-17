@@ -4,22 +4,6 @@ let mediaRecorder;
 let ws;
 let username;
 
-const createMessageElement = (content, sender, senderColor) => {
-  const div = document.createElement("div");
-
-  div.classList.add("message");
-  if (sender) {
-    const span = document.createElement("span");
-    span.classList.add("message--sender");
-    span.style.color = senderColor;
-    span.innerHTML = sender;
-    div.appendChild(span);
-  }
-  div.innerHTML += content;
-
-  return div;
-};
-
 const initWebSocket = () => {
   ws = new WebSocket(WS_URL);
 
@@ -33,9 +17,15 @@ const initWebSocket = () => {
       const receivedBlob = new Blob([event.data], { type: 'audio/wav' });
       const receivedAudioUrl = URL.createObjectURL(receivedBlob);
 
-      const message = createMessageElement('<audio controls src="' + receivedAudioUrl + '"></audio>', username, user.color);
-      
-      chatMessages.appendChild(message);
+      const audioPlayer = new Audio(receivedAudioUrl);
+      audioPlayer.controls = true;
+      audioPlayer.title = username;
+
+      const messageContainer = document.createElement('div');
+      messageContainer.classList.add('message');
+      messageContainer.appendChild(audioPlayer);
+
+      chatMessages.appendChild(messageContainer);
     }
   };
 };
@@ -48,20 +38,6 @@ const startRecording = async () => {
 
     mediaRecorder.ondataavailable = async (event) => {
       if (event.data.size > 0) {
-        const audioPlayer = new Audio();
-        audioPlayer.controls = true;
-        audioPlayer.title = username;
-
-        const container = document.createElement('div');
-        container.className = 'message-audio'; // Usando uma classe diferente para identificar mensagens de áudio
-        container.appendChild(audioPlayer);
-        chatMessages.appendChild(container);
-
-        const receivedBlob = new Blob([event.data], { type: 'audio/wav' });
-        const audioUrl = URL.createObjectURL(receivedBlob);
-        await audioPlayer.load();
-        audioPlayer.src = audioUrl;
-
         ws.send(event.data);
       }
     };
@@ -98,3 +74,5 @@ const setUsername = () => {
 
 setUsername();
 initWebSocket();
+
+
