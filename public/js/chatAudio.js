@@ -220,7 +220,23 @@ const startRecording = async () => {
       });
     };
 
+    mediaRecorder.onerror = (event) => {
+      console.error('Erro no gravador de mídia:', event.error);
+    };
+
+    mediaRecorder.onstart = () => {
+      console.log('Gravação iniciada');
+    };
+
+    mediaRecorder.onstop = () => {
+      console.log('Gravação parada');
+      mediaRecorder.stream.getTracks().forEach((track) => {
+        track.stop();
+      });
+    };
+
     mediaRecorder.start();
+    console.log('Gravação iniciada com sucesso');
   } catch (error) {
     console.error('Erro ao acessar o microfone:', error);
   }
