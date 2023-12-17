@@ -197,17 +197,23 @@ const startRecording = async () => {
 
     mediaRecorder.ondataavailable = async (event) => {
       if (event.data.size > 0) {
-        const messageContent = "Audio Message";
-        const message = {
-          userId: user.id,
-          userName: user.name,
-          userColor: user.color,
-          content: messageContent,
-          action: "chat",
-          audioData: event.data,
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const messageContent = "Audio Message";
+          const message = {
+            userId: user.id,
+            userName: user.name,
+            userColor: user.color,
+            content: messageContent,
+            action: "chat",
+            audioData: reader.result.split(",")[1], // extrai os dados codificados em base64
+          };
+
+          websocket.send(JSON.stringify(message));
         };
 
-        websocket.send(JSON.stringify(message));
+        // Lê o Blob como uma string base64
+        reader.readAsDataURL(event.data);
       }
     };
 
