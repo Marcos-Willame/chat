@@ -53,7 +53,7 @@ const startRecording = async () => {
         audioPlayer.title = username;
 
         const container = document.createElement('div');
-        container.className = 'message'; // Utilizando a mesma classe 'message'
+        container.className = 'message-audio'; // Usando uma classe diferente para identificar mensagens de áudio
         container.appendChild(audioPlayer);
         chatMessages.appendChild(container);
 
@@ -98,5 +98,3 @@ const setUsername = () => {
 
 setUsername();
 initWebSocket();
-
-
