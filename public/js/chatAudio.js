@@ -1,51 +1,44 @@
 // chatAudio.js
 
 // login elements
-const login = document.querySelector(".login");
-const loginForm = login.querySelector(".login__form");
-const loginInput = login.querySelector(".login__input");
+const login = document.querySelector('.login');
+const loginForm = login.querySelector('.login__form');
+const loginInput = login.querySelector('.login__input');
 
 // chat elements
-const chat = document.querySelector(".chat");
-const chatForm = chat.querySelector(".chat__form");
-const chatInput = chat.querySelector(".chat__input");
-const chatMessages = chat.querySelector(".chat__messages");
+const chat = document.querySelector('.chat');
+const chatForm = chat.querySelector('.chat__form');
+const chatInput = chat.querySelector('.chat__input');
+const chatMessages = chat.querySelector('.chat__messages');
 
-const chatNewMessage = document.querySelector("#new-message");
+const chatNewMessage = document.querySelector('#new-message');
 
 const CHAT_MESSAGE_SCROLL = 200;
 
-const colors = [
-  "cadetblue",
-  "darkgoldenrod",
-  "cornflowerblue",
-  "darkkhaki",
-  "hotpink",
-  "gold",
-];
+const colors = ['cadetblue', 'darkgoldenrod', 'cornflowerblue', 'darkkhaki', 'hotpink', 'gold'];
 
-const user = { id: "", name: "", color: "" };
+const user = { id: '', name: '', color: '' };
 
 let websocket;
 let mediaRecorder;
 let localAudios = new Map(); // Mantenha um controle de áudios locais
 
 const createMessageSelfElement = (content) => {
-  const div = document.createElement("div");
+  const div = document.createElement('div');
 
-  div.classList.add("message--self");
+  div.classList.add('message--self');
   div.innerHTML = content;
 
   return div;
 };
 
 const createMessageOtherElement = (content, sender, senderColor) => {
-  const div = document.createElement("div");
-  const span = document.createElement("span");
+  const div = document.createElement('div');
+  const span = document.createElement('span');
 
-  div.classList.add("message--other");
+  div.classList.add('message--other');
 
-  span.classList.add("message--sender");
+  span.classList.add('message--sender');
   span.style.color = senderColor;
 
   div.appendChild(span);
@@ -54,11 +47,6 @@ const createMessageOtherElement = (content, sender, senderColor) => {
   div.innerHTML += content;
 
   return div;
-};
-
-const getRandomColor = () => {
-  const randomIndex = Math.floor(Math.random() * colors.length);
-  return colors[randomIndex];
 };
 
 // Função para reproduzir o som de notificação
@@ -70,10 +58,10 @@ function playNotificationSound() {
 const scrollScreen = () => {
   window.scrollTo({
     top: document.body.scrollHeight,
-    behavior: "smooth",
+    behavior: 'smooth',
   });
 
-  chatNewMessage.style.display = "none";
+  chatNewMessage.style.display = 'none';
 };
 
 chatNewMessage.onclick = scrollScreen;
@@ -94,14 +82,14 @@ const processMessage = ({ data }) => {
 
       // Adicionar o elemento de áudio ao contêiner
       const container = document.createElement('div');
-      container.className = 'message--other audio-container'; // Adicione classe audio-container à mensagem de áudio
-      container.style.color = user.color; // Adicione a cor do usuário à mensagem de áudio
+      container.className = user.id === data.userId ? 'message--self audio-container' : 'message--other audio-container';
+      container.style.color = data.userColor;
       container.appendChild(audioPlayer);
       chatMessages.appendChild(container);
 
       // Reproduzir o áudio
       audioPlayer.play();
-      
+
       return;
     }
 
@@ -112,7 +100,7 @@ const processMessage = ({ data }) => {
   try {
     const { userId, userName, userColor, content, action } = JSON.parse(data);
 
-    if (action !== "message") {
+    if (action !== 'message') {
       return;
     }
 
@@ -124,10 +112,10 @@ const processMessage = ({ data }) => {
     chatMessages.appendChild(message);
 
     if (window.scrollY < CHAT_MESSAGE_SCROLL) {
-      chatNewMessage.style.display = "flex";
+      chatNewMessage.style.display = 'flex';
       playNotificationSound();
     } else {
-      chatNewMessage.style.display = "none";
+      chatNewMessage.style.display = 'none';
     }
   } catch (error) {
     console.error('Erro ao processar mensagem JSON:', error);
@@ -141,8 +129,8 @@ const handleLogin = (event) => {
   user.name = loginInput.value;
   user.color = getRandomColor();
 
-  login.style.display = "none";
-  chat.style.display = "flex";
+  login.style.display = 'none';
+  chat.style.display = 'flex';
 
   websocket = new WebSocket(WS_URL);
   websocket.onmessage = processMessage;
@@ -159,27 +147,27 @@ const sendMessage = (event) => {
 
   const messageContent = chatInput.value.trim();
 
-  if (messageContent !== "" || chatInput.files?.length > 0) {
+  if (messageContent !== '' || chatInput.files?.length > 0) {
     const message = {
       userId: user.id,
       userName: user.name,
       userColor: user.color,
       content: messageContent,
-      action: "chat",
+      action: 'chat',
     };
 
     websocket.send(JSON.stringify(message));
 
-    chatInput.value = "";
+    chatInput.value = '';
   }
 };
 
-loginForm.addEventListener("submit", handleLogin);
-chatForm.addEventListener("submit", sendMessage);
+loginForm.addEventListener('submit', handleLogin);
+chatForm.addEventListener('submit', sendMessage);
 
-document.addEventListener("scroll", () => {
+document.addEventListener('scroll', () => {
   if (window.scrollY >= CHAT_MESSAGE_SCROLL) {
-    chatNewMessage.style.display = "none";
+    chatNewMessage.style.display = 'none';
   }
 });
 
@@ -212,8 +200,8 @@ const initWebSocket = () => {
       audioPlayer.title = user.name;
 
       const container = document.createElement('div');
-      container.className = 'message--other audio-container'; // Adicione classe audio-container à mensagem de áudio
-      container.style.color = user.color; // Adicione a cor do usuário à mensagem de áudio
+      container.className = user.id === event.userId ? 'message--self audio-container' : 'message--other audio-container';
+      container.style.color = event.userColor;
       container.appendChild(audioPlayer);
       chatMessages.appendChild(container);
 
@@ -247,7 +235,7 @@ const startRecording = async () => {
         audioPlayer.title = user.name;
 
         const container = document.createElement('div');
-        container.className = 'message--self audio-container'; // Adicione classe audio-container à mensagem de áudio
+        container.className = 'message--self audio-container';
         container.appendChild(audioPlayer);
         chatMessages.appendChild(container);
 
@@ -275,7 +263,7 @@ const startRecording = async () => {
 };
 
 const setUsername = () => {
-  user.name = prompt('Digite seu nome de usuário:');
+  user.name = loginInput.value;
 };
 
 setUsername();
