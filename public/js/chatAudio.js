@@ -98,7 +98,10 @@ const processMessage = ({ data }) => {
         ? createMessageSelfElement(content)
         : createMessageOtherElement(content, userName, userColor);
 
-    chatMessages.appendChild(message);
+    const messageContainer = document.createElement('div');
+    messageContainer.classList.add('message');
+    messageContainer.appendChild(message);
+    chatMessages.appendChild(messageContainer);
 
     if (window.scrollY < CHAT_MESSAGE_SCROLL) {
       chatNewMessage.style.display = "flex";
@@ -123,7 +126,12 @@ const handleAudioMessage = (audioData) => {
   container.className = 'message--other audio-container';
   container.style.color = user.color;
   container.appendChild(audioPlayer);
-  chatMessages.appendChild(container);
+
+  const messageContainer = document.createElement('div');
+  messageContainer.classList.add('message');
+  messageContainer.appendChild(container);
+
+  chatMessages.appendChild(messageContainer);
 
   audioPlayer.play();
 };
