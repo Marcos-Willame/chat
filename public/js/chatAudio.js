@@ -185,14 +185,9 @@ document.addEventListener("scroll", () => {
 
 //audio.js
 const audioButton = document.getElementById('recordingButton');
-
-audioButton.addEventListener('click', () => {
-  if (mediaRecorder && mediaRecorder.state === 'inactive') {
-    startRecording();
-  } else {
-    stopRecording();
-  }
-});
+let mediaRecorder;
+let websocket;
+let user;
 
 const initWebSocket = () => {
   websocket = new WebSocket(WS_URL);
@@ -204,22 +199,54 @@ const initWebSocket = () => {
 
   websocket.onmessage = (event) => {
     if (event.data instanceof Blob && event.data.size > 0) {
-      const receivedBlob = new Blob([event.data], { type: 'audio/wav' });
-      const receivedAudioUrl = URL.createObjectURL(receivedBlob);
-
-      const audioPlayer = new Audio(receivedAudioUrl);
-      audioPlayer.controls = true;
-      audioPlayer.title = user.name;
-
-      const container = document.createElement('div');
-      container.className = 'message--other audio-container'; // Adicione classe audio-container à mensagem de áudio
-      container.style.color = user.color; // Adicione a cor do usuário à mensagem de áudio
-      container.appendChild(audioPlayer);
-      chatMessages.appendChild(container);
-
-      audioPlayer.play();
+      handleAudioMessage(event.data);
+    } else {
+      processChatMessage(event.data);
     }
   };
+};
+
+const handleAudioMessage = (audioData) => {
+  const receivedBlob = new Blob([audioData], { type: 'audio/wav' });
+  const receivedAudioUrl = URL.createObjectURL(receivedBlob);
+
+  const audioPlayer = new Audio(receivedAudioUrl);
+  audioPlayer.controls = true;
+  audioPlayer.title = user.name;
+
+  const container = document.createElement('div');
+  container.className = 'message--other audio-container';
+  container.style.color = user.color;
+  container.appendChild(audioPlayer);
+  chatMessages.appendChild(container);
+
+  audioPlayer.play();
+};
+
+const processChatMessage = (data) => {
+  try {
+    const { userId, userName, userColor, content, action } = JSON.parse(data);
+
+    if (action !== "message") {
+      return;
+    }
+
+    const message =
+      userId == user.id
+        ? createMessageSelfElement(content)
+        : createMessageOtherElement(content, userName, userColor);
+
+    chatMessages.appendChild(message);
+
+    if (window.scrollY < CHAT_MESSAGE_SCROLL) {
+      chatNewMessage.style.display = "flex";
+      playNotificationSound();
+    } else {
+      chatNewMessage.style.display = "none";
+    }
+  } catch (error) {
+    console.error('Erro ao processar mensagem JSON:', error);
+  }
 };
 
 const startRecording = async () => {
@@ -241,24 +268,6 @@ const startRecording = async () => {
         };
 
         websocket.send(JSON.stringify(message));
-
-        const audioPlayer = new Audio();
-        audioPlayer.controls = true;
-        audioPlayer.title = user.name;
-
-        const container = document.createElement('div');
-        container.className = 'message--self audio-container'; // Adicione classe audio-container à mensagem de áudio
-        container.appendChild(audioPlayer);
-        chatMessages.appendChild(container);
-
-        const receivedBlob = new Blob([event.data], { type: 'audio/wav' });
-        const audioUrl = URL.createObjectURL(receivedBlob);
-        await audioPlayer.load();
-        audioPlayer.src = audioUrl;
-
-        localAudios.set(audioPlayer, true);
-
-        audioPlayer.play();
       }
     };
 
@@ -274,8 +283,23 @@ const startRecording = async () => {
   }
 };
 
+audioButton.addEventListener('click', () => {
+  if (mediaRecorder && mediaRecorder.state === 'inactive') {
+    startRecording();
+  } else {
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+      mediaRecorder.stop();
+    }
+  }
+});
+
+// Adicione esta função para definir o nome de usuário quando solicitado
 const setUsername = () => {
-  user.name = prompt('Digite seu nome de usuário:');
+  user = {
+    id: crypto.randomUUID(),
+    name: prompt('Digite seu nome de usuário:'),
+    color: getRandomColor(),
+  };
 };
 
 setUsername();
