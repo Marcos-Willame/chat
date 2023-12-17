@@ -15,10 +15,15 @@ const createAudioElement = (audioBlob, sender) => {
   const messageContainer = document.createElement('div');
   messageContainer.classList.add('message');
   messageContainer.classList.add(sender === username ? 'sent' : 'received'); // Adiciona classe 'sent' ou 'received' para estilização
-
   messageContainer.appendChild(audioPlayer);
 
   chatMessages.appendChild(messageContainer);
+
+  // Adicione a mesma mensagem ao lado do remetente
+  if (sender === username) {
+    const ownMessageContainer = messageContainer.cloneNode(true);
+    chatMessages.appendChild(ownMessageContainer);
+  }
 };
 
 const initWebSocket = () => {
@@ -79,4 +84,4 @@ const setUsername = () => {
 };
 
 setUsername();
-initWebSocket()
+initWebSocket();
