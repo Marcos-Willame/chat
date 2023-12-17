@@ -94,7 +94,8 @@ const processMessage = ({ data }) => {
 
       // Adicionar o elemento de áudio ao contêiner
       const container = document.createElement('div');
-      container.className = 'audio-container';
+      container.className = 'message--other audio-container'; // Adicione classe audio-container à mensagem de áudio
+      container.style.color = user.color; // Adicione a cor do usuário à mensagem de áudio
       container.appendChild(audioPlayer);
       chatMessages.appendChild(container);
 
@@ -147,7 +148,6 @@ const handleLogin = (event) => {
   websocket.onmessage = processMessage;
 };
 
-// Adapte esta função para parar a gravação e enviar a mensagem de áudio
 const stopRecording = () => {
   if (mediaRecorder && mediaRecorder.state === 'recording') {
     mediaRecorder.stop();
@@ -159,8 +159,6 @@ const sendMessage = (event) => {
 
   const messageContent = chatInput.value.trim();
 
-  // Remova a verificação para mensagens vazias
-  // Mantenha a verificação para outros tipos de conteúdo (por exemplo, texto)
   if (messageContent !== "" || chatInput.files?.length > 0) {
     const message = {
       userId: user.id,
@@ -206,22 +204,19 @@ const initWebSocket = () => {
 
   websocket.onmessage = (event) => {
     if (event.data instanceof Blob && event.data.size > 0) {
-      // Tratar dados de áudio recebidos do servidor
       const receivedBlob = new Blob([event.data], { type: 'audio/wav' });
       const receivedAudioUrl = URL.createObjectURL(receivedBlob);
 
-      // Criar um novo elemento de áudio
       const audioPlayer = new Audio(receivedAudioUrl);
       audioPlayer.controls = true;
       audioPlayer.title = user.name;
 
-      // Adicionar o elemento de áudio ao contêiner
       const container = document.createElement('div');
-      container.className = 'audio-container';
+      container.className = 'message--other audio-container'; // Adicione classe audio-container à mensagem de áudio
+      container.style.color = user.color; // Adicione a cor do usuário à mensagem de áudio
       container.appendChild(audioPlayer);
       chatMessages.appendChild(container);
 
-      // Reproduzir o áudio
       audioPlayer.play();
     }
   };
@@ -235,45 +230,39 @@ const startRecording = async () => {
 
     mediaRecorder.ondataavailable = async (event) => {
       if (event.data.size > 0) {
-        const messageContent = 'Audio Message'; // Mensagem a ser exibida no chat
+        const messageContent = 'Audio Message';
         const message = {
           userId: user.id,
           userName: user.name,
           userColor: user.color,
           content: messageContent,
-          action: 'chat', // Ação para o chat
-          audioData: event.data, // Adicione dados de áudio à mensagem
+          action: 'chat',
+          audioData: event.data,
         };
 
         websocket.send(JSON.stringify(message));
 
-        // Criar um novo elemento de áudio
         const audioPlayer = new Audio();
         audioPlayer.controls = true;
         audioPlayer.title = user.name;
 
-        // Adicionar o elemento de áudio ao contêiner
         const container = document.createElement('div');
-        container.className = 'audio-container';
+        container.className = 'message--self audio-container'; // Adicione classe audio-container à mensagem de áudio
         container.appendChild(audioPlayer);
         chatMessages.appendChild(container);
 
-        // Carregar o Blob recebido no elemento de áudio
         const receivedBlob = new Blob([event.data], { type: 'audio/wav' });
         const audioUrl = URL.createObjectURL(receivedBlob);
         await audioPlayer.load();
         audioPlayer.src = audioUrl;
 
-        // Adicione o áudio local ao Map para evitar duplicação
         localAudios.set(audioPlayer, true);
 
-        // Reproduzir o áudio local
         audioPlayer.play();
       }
     };
 
     mediaRecorder.onstop = () => {
-      // Parar a gravação e limpar
       mediaRecorder.stream.getTracks().forEach((track) => {
         track.stop();
       });
@@ -285,10 +274,9 @@ const startRecording = async () => {
   }
 };
 
-// Adicione esta função para definir o nome de usuário quando solicitado
 const setUsername = () => {
   user.name = prompt('Digite seu nome de usuário:');
 };
 
-setUsername(); // Chame a função assim que a página for carregada para solicitar o nome de usuário
+setUsername();
 initWebSocket();
