@@ -183,11 +183,8 @@ document.addEventListener("scroll", () => {
   }
 });
 
-//audio.js
+
 const audioButton = document.getElementById('recordingButton');
-let mediaRecorder;
-let websocket;
-let user;
 
 const initWebSocket = () => {
   websocket = new WebSocket(WS_URL);
