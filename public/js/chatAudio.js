@@ -197,23 +197,20 @@ const startRecording = async () => {
 
     mediaRecorder.ondataavailable = async (event) => {
       if (event.data.size > 0) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const messageContent = "Audio Message";
-          const message = {
-            userId: user.id,
-            userName: user.name,
-            userColor: user.color,
-            content: messageContent,
-            action: "chat",
-            audioData: reader.result.split(",")[1], // extrai os dados codificados em base64
-          };
+        const audioBlob = new Blob([event.data], { type: 'audio/wav' });
+        const audioUrl = URL.createObjectURL(audioBlob);
 
-          websocket.send(JSON.stringify(message));
+        const messageContent = 'Audio Message';
+        const message = {
+          userId: user.id,
+          userName: user.name,
+          userColor: user.color,
+          content: messageContent,
+          action: 'chat',
+          audioData: audioUrl,
         };
 
-        // Lê o Blob como uma string base64
-        reader.readAsDataURL(event.data);
+        websocket.send(JSON.stringify(message));
       }
     };
 
@@ -225,7 +222,7 @@ const startRecording = async () => {
 
     mediaRecorder.start();
   } catch (error) {
-    console.error("Erro ao acessar o microfone:", error);
+    console.error('Erro ao acessar o microfone:', error);
   }
 };
 
