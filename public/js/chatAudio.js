@@ -186,7 +186,7 @@ document.addEventListener("scroll", () => {
 });
 
 //audio.js
-const audioButton = document.getElementById('audioButton');
+const audioButton = document.getElementById('recordingButton');
 
 audioButton.addEventListener('click', () => {
   if (mediaRecorder && mediaRecorder.state === 'inactive') {
