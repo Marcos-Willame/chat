@@ -185,6 +185,106 @@ document.addEventListener("scroll", () => {
   }
 });
 
+//audio.js
+const audioButton = document.getElementById('audioButton');
+
+audioButton.addEventListener('click', () => {
+  if (mediaRecorder && mediaRecorder.state === 'inactive') {
+    startRecording();
+  } else {
+    stopRecording();
+  }
+});
+
+const initWebSocket = () => {
+  websocket = new WebSocket(WS_URL);
+
+  websocket.onopen = () => {
+    console.log('WebSocket conectado.');
+    audioButton.disabled = false;
+  };
+
+  websocket.onmessage = (event) => {
+    if (event.data instanceof Blob && event.data.size > 0) {
+      // Tratar dados de áudio recebidos do servidor
+      const receivedBlob = new Blob([event.data], { type: 'audio/wav' });
+      const receivedAudioUrl = URL.createObjectURL(receivedBlob);
+
+      // Criar um novo elemento de áudio
+      const audioPlayer = new Audio(receivedAudioUrl);
+      audioPlayer.controls = true;
+      audioPlayer.title = user.name;
+
+      // Adicionar o elemento de áudio ao contêiner
+      const container = document.createElement('div');
+      container.className = 'audio-container';
+      container.appendChild(audioPlayer);
+      chatMessages.appendChild(container);
+
+      // Reproduzir o áudio
+      audioPlayer.play();
+    }
+  };
+};
+
+const startRecording = async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+    mediaRecorder = new MediaRecorder(stream);
+
+    mediaRecorder.ondataavailable = async (event) => {
+      if (event.data.size > 0) {
+        const messageContent = 'Audio Message'; // Mensagem a ser exibida no chat
+        const message = {
+          userId: user.id,
+          userName: user.name,
+          userColor: user.color,
+          content: messageContent,
+          action: 'chat', // Ação para o chat
+          audioData: event.data, // Adicione dados de áudio à mensagem
+        };
+
+        websocket.send(JSON.stringify(message));
+
+        // Criar um novo elemento de áudio
+        const audioPlayer = new Audio();
+        audioPlayer.controls = true;
+        audioPlayer.title = user.name;
+
+        // Adicionar o elemento de áudio ao contêiner
+        const container = document.createElement('div');
+        container.className = 'audio-container';
+        container.appendChild(audioPlayer);
+        chatMessages.appendChild(container);
+
+        // Carregar o Blob recebido no elemento de áudio
+        const receivedBlob = new Blob([event.data], { type: 'audio/wav' });
+        const audioUrl = URL.createObjectURL(receivedBlob);
+        await audioPlayer.load();
+        audioPlayer.src = audioUrl;
+
+        // Adicione o áudio local ao Map para evitar duplicação
+        localAudios.set(audioPlayer, true);
+
+        // Reproduzir o áudio local
+        audioPlayer.play();
+      }
+    };
+
+    mediaRecorder.onstop = () => {
+      // Parar a gravação e limpar
+      mediaRecorder.stream.getTracks().forEach((track) => {
+        track.stop();
+      });
+    };
+
+    mediaRecorder.start();
+  } catch (error) {
+    console.error('Erro ao acessar o microfone:', error);
+  }
+};
+
 // Adicione esta função para definir o nome de usuário quando solicitado
 const setUsername = () => {
   user.name = prompt('Digite seu nome de usuário:');
