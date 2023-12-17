@@ -77,9 +77,7 @@ const scrollScreen = () => {
 chatNewMessage.onclick = scrollScreen;
 
 const processMessage = ({ data }) => {
-  // Se a mensagem não for uma string, ignore-a
   if (typeof data !== 'string') {
-    // Se o tipo for Blob (áudio), retorne sem processar
     if (data instanceof Blob) {
       return;
     }
