@@ -51,10 +51,7 @@ const initWebSocket = () => {
       audioPlayer.controls = true;
       audioPlayer.title = username;
 
-      const messageContainer = document.createElement('div');
-      messageContainer.classList.add('message');
-      messageContainer.appendChild(audioPlayer);
-
+      const messageContainer = createMessageElement(audioPlayer, username, '', 'audio-other');
       chatMessages.appendChild(messageContainer);
     }
   };
