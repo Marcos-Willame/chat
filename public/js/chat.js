@@ -1,4 +1,4 @@
-// chat.js
+//chat.js
 
 // login elements
 const login = document.querySelector(".login");
@@ -113,14 +113,11 @@ const processMessage = ({ data }) => {
   }
 };
 
-const setChatUsername = () => {
-  user.name = prompt('Digite seu nome de usuário:');
-};
-
 const handleLogin = (event) => {
   event.preventDefault();
 
   user.id = crypto.randomUUID();
+  user.name = loginInput.value;
   user.color = getRandomColor();
 
   login.style.display = "none";

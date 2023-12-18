@@ -1,8 +1,8 @@
 // audio.js
-
 const recordingButton = document.getElementById('recordingButton');
 let mediaRecorder;
 let ws;
+let username;
 
 const createAudioElement = (audioBlob, sender) => {
   const receivedBlob = new Blob([audioBlob], { type: 'audio/wav' });
@@ -14,7 +14,7 @@ const createAudioElement = (audioBlob, sender) => {
 
   const messageContainer = document.createElement('div');
   messageContainer.classList.add('message');
-  messageContainer.classList.add(sender === user.name ? 'sent' : 'received'); // Adiciona classe 'sent' ou 'received' para estilização
+  messageContainer.classList.add(sender === username ? 'sent' : 'received'); // Adiciona classe 'sent' ou 'received' para estilização
   messageContainer.appendChild(audioPlayer);
 
   chatMessages.appendChild(messageContainer);
@@ -30,7 +30,7 @@ const initWebSocket = () => {
 
   ws.onmessage = (event) => {
     if (event.data instanceof Blob && event.data.size > 0) {
-      createAudioElement(event.data, user.name);  // Use user.name como o remetente
+      createAudioElement(event.data, 'other');
     }
   };
 };
@@ -44,7 +44,7 @@ const startRecording = async () => {
     mediaRecorder.ondataavailable = async (event) => {
       if (event.data.size > 0) {
         ws.send(event.data);
-        createAudioElement(event.data, user.name);  // Use user.name como o remetente
+        createAudioElement(event.data, 'self');
       }
     };
 
@@ -74,6 +74,11 @@ recordingButton.addEventListener('mouseup', () => {
   stopRecording();
 });
 
+const setUsername = () => {
+  username = prompt('Digite seu nome de usuário:');
+};
+
+setUsername();
 initWebSocket();
 
 
