@@ -28,9 +28,6 @@ const user = { id: "", name: "", color: "" };
 
 let websocket;
 
-// Adicione a variável sharedUsername no início do arquivo
-let sharedUsername;
-
 const createMessageSelfElement = (content) => {
   const div = document.createElement("div");
 
@@ -119,21 +116,15 @@ const processMessage = ({ data }) => {
 const handleLogin = (event) => {
   event.preventDefault();
 
-  // Atualize a variável sharedUsername
-  sharedUsername = loginInput.value;
-
-  // Use a variável sharedUsername se ela já estiver definida
   user.id = crypto.randomUUID();
-  user.name = sharedUsername;
+  user.name = loginInput.value;
   user.color = getRandomColor();
-  
+
   login.style.display = "none";
   chat.style.display = "flex";
 
-  // Certifique-se de que o WebSocket ainda não foi inicializado antes de chamar initWebSocket
-  if (!websocket) {
-    initWebSocket();
-  }
+  websocket = new WebSocket(WS_URL);
+  websocket.onmessage = processMessage;
 };
 
 const sendMessage = (event) => {

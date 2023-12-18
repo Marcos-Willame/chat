@@ -26,14 +26,8 @@ const initWebSocket = () => {
   ws.onopen = () => {
     console.log('WebSocket conectado.');
     recordingButton.disabled = false;
-    
-    // Verifique se o username já está definido antes de chamar setUsername
-    if (!username) {
-      setUsername();
-    }
-
   };
-  
+
   ws.onmessage = (event) => {
     if (event.data instanceof Blob && event.data.size > 0) {
       createAudioElement(event.data, 'other');
@@ -81,10 +75,7 @@ recordingButton.addEventListener('mouseup', () => {
 });
 
 const setUsername = () => {
-  // Atualize a variável sharedUsername
-  sharedUsername = prompt('Digite seu nome de usuário:');
-
-  username = sharedUsername;
+  username = prompt('Digite seu nome de usuário:');
 };
 
 setUsername();
