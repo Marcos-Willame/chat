@@ -130,8 +130,10 @@ const handleLogin = (event) => {
   login.style.display = "none";
   chat.style.display = "flex";
 
-  websocket = new WebSocket(WS_URL);
-  websocket.onmessage = processMessage;
+  // Certifique-se de que o WebSocket ainda não foi inicializado antes de chamar initWebSocket
+  if (!websocket) {
+    initWebSocket();
+  }
 };
 
 const sendMessage = (event) => {

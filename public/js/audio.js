@@ -27,9 +27,13 @@ const initWebSocket = () => {
     console.log('WebSocket conectado.');
     recordingButton.disabled = false;
     
-    setUsername(); // Chame setUsername aqui
-  };
+    // Verifique se o username já está definido antes de chamar setUsername
+    if (!username) {
+      setUsername();
+    }
 
+  };
+  
   ws.onmessage = (event) => {
     if (event.data instanceof Blob && event.data.size > 0) {
       createAudioElement(event.data, 'other');
