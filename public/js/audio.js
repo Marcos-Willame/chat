@@ -26,6 +26,8 @@ const initWebSocket = () => {
   ws.onopen = () => {
     console.log('WebSocket conectado.');
     recordingButton.disabled = false;
+    
+    setUsername(); // Chame setUsername aqui
   };
 
   ws.onmessage = (event) => {
