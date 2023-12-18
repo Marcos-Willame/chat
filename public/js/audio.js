@@ -4,20 +4,34 @@ let mediaRecorder;
 let ws;
 let username;
 
-const createAudioElement = (audioBlob, sender) => {
-  const receivedBlob = new Blob([audioBlob], { type: 'audio/wav' });
-  const receivedAudioUrl = URL.createObjectURL(receivedBlob);
+const createMessageElement = (content, sender, senderColor, messageType) => {
+  const div = document.createElement('div');
 
-  const audioPlayer = new Audio(receivedAudioUrl);
-  audioPlayer.controls = true;
-  audioPlayer.title = sender;
+  div.classList.add('message');
+  
+  if (messageType === 'self') {
+    div.classList.add('message--self');
+  } else if (messageType === 'other') {
+    const span = document.createElement('span');
+    span.classList.add('message--sender');
+    span.style.color = senderColor;
+    span.innerHTML = sender;
+    div.appendChild(span);
+    div.classList.add('message--other');
+  } else if (messageType === 'audio-self') {
+    div.classList.add('message--audio-self');
+  } else if (messageType === 'audio-other') {
+    const span = document.createElement('span');
+    span.classList.add('message--sender');
+    span.style.color = senderColor;
+    span.innerHTML = sender;
+    div.appendChild(span);
+    div.classList.add('message--audio-other');
+  }
 
-  const messageContainer = document.createElement('div');
-  messageContainer.classList.add('message');
-  messageContainer.classList.add(sender === username ? 'sent' : 'received'); // Adiciona classe 'sent' ou 'received' para estilização
-  messageContainer.appendChild(audioPlayer);
+  div.innerHTML += content;
 
-  chatMessages.appendChild(messageContainer);
+  return div;
 };
 
 const initWebSocket = () => {
@@ -30,7 +44,18 @@ const initWebSocket = () => {
 
   ws.onmessage = (event) => {
     if (event.data instanceof Blob && event.data.size > 0) {
-      createAudioElement(event.data, 'other');
+      const receivedBlob = new Blob([event.data], { type: 'audio/wav' });
+      const receivedAudioUrl = URL.createObjectURL(receivedBlob);
+
+      const audioPlayer = new Audio(receivedAudioUrl);
+      audioPlayer.controls = true;
+      audioPlayer.title = username;
+
+      const messageContainer = document.createElement('div');
+      messageContainer.classList.add('message');
+      messageContainer.appendChild(audioPlayer);
+
+      chatMessages.appendChild(messageContainer);
     }
   };
 };
@@ -44,7 +69,6 @@ const startRecording = async () => {
     mediaRecorder.ondataavailable = async (event) => {
       if (event.data.size > 0) {
         ws.send(event.data);
-        createAudioElement(event.data, 'self');
       }
     };
 
