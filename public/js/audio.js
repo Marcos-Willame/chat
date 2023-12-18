@@ -18,12 +18,6 @@ const createAudioElement = (audioBlob, sender) => {
   messageContainer.appendChild(audioPlayer);
 
   chatMessages.appendChild(messageContainer);
-
-  // Adicione a mesma mensagem ao lado do remetente
-  if (sender === username) {
-    const ownMessageContainer = messageContainer.cloneNode(true);
-    chatMessages.appendChild(ownMessageContainer);
-  }
 };
 
 const initWebSocket = () => {
@@ -36,7 +30,7 @@ const initWebSocket = () => {
 
   ws.onmessage = (event) => {
     if (event.data instanceof Blob && event.data.size > 0) {
-      createAudioElement(event.data, username);
+      createAudioElement(event.data, 'other');
     }
   };
 };
@@ -50,6 +44,7 @@ const startRecording = async () => {
     mediaRecorder.ondataavailable = async (event) => {
       if (event.data.size > 0) {
         ws.send(event.data);
+        createAudioElement(event.data, 'self');
       }
     };
 
