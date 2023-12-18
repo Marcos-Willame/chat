@@ -1,4 +1,4 @@
-//chat.js
+// chat.js
 
 // login elements
 const login = document.querySelector(".login");
@@ -37,31 +37,18 @@ const createMessageSelfElement = (content) => {
   return div;
 };
 
-const createMessageElement = (content, sender, senderColor, messageType) => {
-  const div = document.createElement('div');
+const createMessageOtherElement = (content, sender, senderColor) => {
+  const div = document.createElement("div");
+  const span = document.createElement("span");
 
-  div.classList.add('message');
-  
-  if (messageType === 'self') {
-    div.classList.add('message--self');
-  } else if (messageType === 'other') {
-    const span = document.createElement('span');
-    span.classList.add('message--sender');
-    span.style.color = senderColor;
-    span.innerHTML = sender;
-    div.appendChild(span);
-    div.classList.add('message--other');
-  } else if (messageType === 'audio-self') {
-    div.classList.add('message--audio-self');
-  } else if (messageType === 'audio-other') {
-    const span = document.createElement('span');
-    span.classList.add('message--sender');
-    span.style.color = senderColor;
-    span.innerHTML = sender;
-    div.appendChild(span);
-    div.classList.add('message--audio-other');
-  }
+  div.classList.add("message--other");
 
+  span.classList.add("message--sender");
+  span.style.color = senderColor;
+
+  div.appendChild(span);
+
+  span.innerHTML = sender;
   div.innerHTML += content;
 
   return div;
@@ -92,9 +79,6 @@ chatNewMessage.onclick = scrollScreen;
 const processMessage = ({ data }) => {
   if (typeof data !== 'string') {
     if (data instanceof Blob) {
-      // Tratar dados de áudio
-      const message = createMessageElement('<audio controls src="' + URL.createObjectURL(data) + '"></audio>', userName, user.color, 'audio-other');
-      chatMessages.appendChild(message);
       return;
     }
 
@@ -105,21 +89,25 @@ const processMessage = ({ data }) => {
   try {
     const { userId, userName, userColor, content, action } = JSON.parse(data);
 
-    if (action === 'chat') {
-      // Lógica para exibir mensagens de chat
-      const messageType = userId === user.id ? 'self' : 'other';
-      const message = createMessageElement(content, userName, userColor, messageType);
+    if (action === "chat" || action === "audio") {
+      const isAudio = action === "audio";
+
+      const message =
+        userId === user.id
+          ? createMessageSelfElement(isAudio ? '<audio controls src="' + content + '"></audio>' : content)
+          : createMessageOtherElement(isAudio ? '<audio controls src="' + content + '"></audio>' : content, userName, userColor);
+
       chatMessages.appendChild(message);
 
-      if (window.scrollY < CHAT_MESSAGE_SCROLL) {
-        chatNewMessage.style.display = 'flex';
+      if (!isAudio && window.scrollY < CHAT_MESSAGE_SCROLL) {
+        chatNewMessage.style.display = "flex";
         playNotificationSound();
       } else {
-        chatNewMessage.style.display = 'none';
+        chatNewMessage.style.display = "none";
       }
+    } else {
+      console.error('Ação não reconhecida:', action);
     }
-
-    // ... (outros tipos de mensagens, se houver)
   } catch (error) {
     console.error('Erro ao processar mensagem JSON:', error);
   }
