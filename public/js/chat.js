@@ -1,4 +1,4 @@
-//chat.js
+// chat.js
 
 // login elements
 const login = document.querySelector(".login");
@@ -158,5 +158,5 @@ document.addEventListener("scroll", () => {
   }
 });
 
-
-
+// Chame a função assim que a página for carregada para solicitar o nome de usuário
+setUsername();
