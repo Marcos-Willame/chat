@@ -26,6 +26,10 @@ const initWebSocket = () => {
   ws.onopen = () => {
     console.log('WebSocket conectado.');
     recordingButton.disabled = false;
+
+    setUsername(); // Chame setUsername aqui
+    // Adicione o nome de usuário ao Local Storage
+    localStorage.setItem('username', username);
   };
 
   ws.onmessage = (event) => {
@@ -75,6 +79,7 @@ recordingButton.addEventListener('mouseup', () => {
 });
 
 const setUsername = () => {
+  // Atualize a variável username
   username = prompt('Digite seu nome de usuário:');
 };
 

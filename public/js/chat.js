@@ -1,4 +1,4 @@
-//chat.js
+// chat.js
 
 // login elements
 const login = document.querySelector(".login");
@@ -100,7 +100,10 @@ const processMessage = ({ data }) => {
         ? createMessageSelfElement(content)
         : createMessageOtherElement(content, userName, userColor);
 
-    chatMessages.appendChild(message);
+    const messageContainer = document.createElement('div');
+    messageContainer.classList.add('message');
+    messageContainer.appendChild(message);
+    chatMessages.appendChild(messageContainer);
 
     if (window.scrollY < CHAT_MESSAGE_SCROLL) {
       chatNewMessage.style.display = "flex";
@@ -122,6 +125,9 @@ const handleLogin = (event) => {
 
   login.style.display = "none";
   chat.style.display = "flex";
+
+  // Salvar o nome de usuário no Local Storage para ser recuperado em futuros acessos
+  localStorage.setItem('username', user.name);
 
   websocket = new WebSocket(WS_URL);
   websocket.onmessage = processMessage;
@@ -149,7 +155,15 @@ const sendMessage = (event) => {
   }
 };
 
-loginForm.addEventListener("submit", handleLogin);
+// Recuperar o nome de usuário do Local Storage se disponível
+const storedUsername = localStorage.getItem('username');
+if (storedUsername) {
+  user.name = storedUsername;
+  handleLogin(); // Se o nome de usuário já estiver armazenado, realizar login automaticamente
+} else {
+  loginForm.addEventListener("submit", handleLogin);
+}
+
 chatForm.addEventListener("submit", sendMessage);
 
 document.addEventListener("scroll", () => {
