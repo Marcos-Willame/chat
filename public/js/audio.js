@@ -75,7 +75,10 @@ recordingButton.addEventListener('mouseup', () => {
 });
 
 const setUsername = () => {
-  username = sharedUsername || prompt('Digite seu nome de usuário:');
+  // Atualize a variável sharedUsername
+  sharedUsername = prompt('Digite seu nome de usuário:');
+
+  username = sharedUsername;
 };
 
 setUsername();

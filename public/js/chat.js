@@ -119,10 +119,13 @@ const processMessage = ({ data }) => {
 const handleLogin = (event) => {
   event.preventDefault();
 
+  // Atualize a variável sharedUsername
+  sharedUsername = loginInput.value;
+
   // Use a variável sharedUsername se ela já estiver definida
   user.id = crypto.randomUUID();
-  user.name = sharedUsername || loginInput.value;
-  user.color = getRandomColor()
+  user.name = sharedUsername;
+  user.color = getRandomColor();
   
   login.style.display = "none";
   chat.style.display = "flex";
