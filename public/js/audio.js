@@ -1,3 +1,4 @@
+// audio.js
 const recordingButton = document.getElementById('recordingButton');
 let mediaRecorder;
 let ws;
@@ -13,7 +14,7 @@ const createAudioElement = (audioBlob, sender) => {
 
   const messageContainer = document.createElement('div');
   messageContainer.classList.add('message');
-  messageContainer.classList.add(sender === username ? 'sent' : 'received');
+  messageContainer.classList.add(sender === username ? 'sent' : 'received'); // Adiciona classe 'sent' ou 'received' para estilização
   messageContainer.appendChild(audioPlayer);
 
   chatMessages.appendChild(messageContainer);
@@ -73,12 +74,8 @@ recordingButton.addEventListener('mouseup', () => {
   stopRecording();
 });
 
-// Adicione o nome de usuário ao WebSocket após a definição
 const setUsername = () => {
-  if (!username) {
-    username = prompt('Digite seu nome de usuário:');
-    ws.send(JSON.stringify({ action: 'setUsername', username }));
-  }
+  username = prompt('Digite seu nome de usuário:');
 };
 
 setUsername();
