@@ -76,8 +76,13 @@ recordingButton.addEventListener('mouseup', () => {
 
 const setUsername = () => {
   username = prompt('Digite seu nome de usuário:');
-  // Envie o nome de usuário para o servidor WebSocket
-  ws.send(JSON.stringify({ action: 'setUsername', username }));
+  
+  // Verifique se ws está definido antes de chamar send
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({ action: 'setUsername', username }));
+  } else {
+    console.error('WebSocket não está pronto para enviar dados.');
+  }
 };
 
 setUsername();
