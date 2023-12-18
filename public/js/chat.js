@@ -117,7 +117,7 @@ const handleLogin = (event) => {
   event.preventDefault();
 
   user.id = crypto.randomUUID();
-  user.name = loginInput.value;
+  setUsername(); // Adicione a chamada para setUsername aqui
   user.color = getRandomColor();
 
   login.style.display = "none";
