@@ -90,6 +90,12 @@ const processMessage = ({ data }) => {
 
   try {
     const { userId, userName, userColor, content, action } = JSON.parse(data);
+    
+    if (action === 'setUsername') {
+      // Atualize o nome de usuário na variável user
+      user.name = userName;
+      return;
+    }
 
     if (action !== "message") {
       return;

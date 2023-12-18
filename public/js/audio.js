@@ -76,6 +76,8 @@ recordingButton.addEventListener('mouseup', () => {
 
 const setUsername = () => {
   username = prompt('Digite seu nome de usuário:');
+  // Envie o nome de usuário para o servidor WebSocket
+  ws.send(JSON.stringify({ action: 'setUsername', username }));
 };
 
 setUsername();
