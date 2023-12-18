@@ -1,4 +1,4 @@
-// chat.js
+//chat.js
 
 // login elements
 const login = document.querySelector(".login");
@@ -77,9 +77,10 @@ const scrollScreen = () => {
 chatNewMessage.onclick = scrollScreen;
 
 const processMessage = ({ data }) => {
+  // Se a mensagem não for uma string, ignore-a
   if (typeof data !== 'string') {
+    // Se o tipo for Blob (áudio), retorne sem processar
     if (data instanceof Blob) {
-      handleAudioMessage(data);
       return;
     }
 
@@ -91,9 +92,6 @@ const processMessage = ({ data }) => {
     const { userId, userName, userColor, content, action } = JSON.parse(data);
 
     if (action !== "message") {
-      if (action === 'audio') {
-        handleAudioMessage(userName, content); // Adiciona função para processar áudio do chat
-      }
       return;
     }
 
@@ -125,9 +123,6 @@ const handleLogin = (event) => {
   login.style.display = "none";
   chat.style.display = "flex";
 
-  // Salvar o nome de usuário no Local Storage para ser recuperado em futuros acessos
-  localStorage.setItem('username', user.name);
-
   websocket = new WebSocket(WS_URL);
   websocket.onmessage = processMessage;
 };
@@ -154,15 +149,7 @@ const sendMessage = (event) => {
   }
 };
 
-// Recuperar o nome de usuário do Local Storage se disponível
-const storedUsername = localStorage.getItem('username');
-if (storedUsername) {
-  user.name = storedUsername;
-  handleLogin(); // Se o nome de usuário já estiver armazenado, realizar login automaticamente
-} else {
-  loginForm.addEventListener("submit", handleLogin);
-}
-
+loginForm.addEventListener("submit", handleLogin);
 chatForm.addEventListener("submit", sendMessage);
 
 document.addEventListener("scroll", () => {
@@ -170,26 +157,6 @@ document.addEventListener("scroll", () => {
     chatNewMessage.style.display = "none";
   }
 });
-
-// Adiciona função para processar áudio do chat
-const handleAudioMessage = (sender, audioUrl) => {
-  const audioPlayer = new Audio(audioUrl);
-  audioPlayer.controls = true;
-  audioPlayer.title = sender;
-
-  const container = document.createElement('div');
-  container.className = 'message--other audio-container';
-  container.style.color = getRandomColor();
-  container.appendChild(audioPlayer);
-
-  const messageContainer = document.createElement('div');
-  messageContainer.classList.add('message');
-  messageContainer.appendChild(container);
-
-  chatMessages.appendChild(messageContainer);
-
-  audioPlayer.play();
-};
 
 
 
