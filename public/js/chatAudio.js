@@ -252,3 +252,7 @@ const startRecording = async () => {
 
 // Chame a função assim que a página for carregada para solicitar o nome de usuário
 handleLogin();
+
+
+
+
