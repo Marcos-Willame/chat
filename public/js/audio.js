@@ -25,12 +25,21 @@ const initWebSocket = () => {
 
   ws.onopen = () => {
     console.log('WebSocket conectado.');
-    recordingButton.disabled = false;
+
+    // Adiciona este trecho para enviar o nome de usuário para o chat.js
+    const message = {
+      type: 'setUsername',
+      username: username,
+    };
+
+    ws.send(JSON.stringify(message));
   };
 
   ws.onmessage = (event) => {
-    if (event.data instanceof Blob && event.data.size > 0) {
-      createAudioElement(event.data, 'other');
+    const data = JSON.parse(event.data);
+
+    if (data instanceof Blob && data.size > 0) {
+      createAudioElement(data, 'other');
     }
   };
 };

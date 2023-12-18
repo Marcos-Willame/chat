@@ -77,36 +77,31 @@ const scrollScreen = () => {
 chatNewMessage.onclick = scrollScreen;
 
 const processMessage = ({ data }) => {
-  // Se a mensagem não for uma string, ignore-a
-  if (typeof data !== 'string') {
-    // Se o tipo for Blob (áudio), retorne sem processar
-    if (data instanceof Blob) {
-      return;
-    }
-
-    console.error('Tipo de mensagem não suportado:', data);
-    return;
-  }
-
   try {
-    const { userId, userName, userColor, content, action } = JSON.parse(data);
+    const { userId, userName, userColor, content, action, type } = JSON.parse(data);
 
-    if (action !== "message") {
-      return;
-    }
+    if (type === 'setUsername') {
+      user.id = userId;
+      user.name = userName;
+      user.color = userColor;
 
-    const message =
-      userId == user.id
-        ? createMessageSelfElement(content)
-        : createMessageOtherElement(content, userName, userColor);
+      console.log(`[chat.js] Nome de usuário recebido: ${user.name}`);
 
-    chatMessages.appendChild(message);
+      // Continue a execução do chat.js aqui, pois o nome de usuário foi definido
+    } else if (action === "message") {
+      const message =
+        userId == user.id
+          ? createMessageSelfElement(content)
+          : createMessageOtherElement(content, userName, userColor);
 
-    if (window.scrollY < CHAT_MESSAGE_SCROLL) {
-      chatNewMessage.style.display = "flex";
-      playNotificationSound();
-    } else {
-      chatNewMessage.style.display = "none";
+      chatMessages.appendChild(message);
+
+      if (window.scrollY < CHAT_MESSAGE_SCROLL) {
+        chatNewMessage.style.display = "flex";
+        playNotificationSound();
+      } else {
+        chatNewMessage.style.display = "none";
+      }
     }
   } catch (error) {
     console.error('Erro ao processar mensagem JSON:', error);
