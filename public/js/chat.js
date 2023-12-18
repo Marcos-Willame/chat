@@ -158,5 +158,10 @@ document.addEventListener("scroll", () => {
   }
 });
 
+
 // Chame a função assim que a página for carregada para solicitar o nome de usuário
-setUsername();
+if (typeof setUsername === 'function') {
+  setUsername();
+} else {
+  console.error('A função setUsername não está definida. Certifique-se de que audio.js foi carregado corretamente.');
+}
