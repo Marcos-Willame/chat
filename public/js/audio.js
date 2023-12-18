@@ -14,7 +14,7 @@ const createAudioElement = (audioBlob, sender) => {
 
   const messageContainer = document.createElement('div');
   messageContainer.classList.add('message');
-  messageContainer.classList.add(sender === username ? 'sent' : 'received'); // Adiciona classe 'sent' ou 'received' para estilização
+  messageContainer.classList.add(sender === username ? 'sent' : 'received');
   messageContainer.appendChild(audioPlayer);
 
   chatMessages.appendChild(messageContainer);
@@ -27,14 +27,14 @@ const initWebSocket = () => {
     console.log('WebSocket conectado.');
     recordingButton.disabled = false;
 
-    setUsername(); // Chame setUsername aqui
-    // Adicione o nome de usuário ao Local Storage
-    localStorage.setItem('username', username);
+    setUsername();
   };
 
   ws.onmessage = (event) => {
     if (event.data instanceof Blob && event.data.size > 0) {
       createAudioElement(event.data, 'other');
+    } else {
+      processChatMessage(event.data); // Processa mensagens do chat
     }
   };
 };
@@ -47,7 +47,16 @@ const startRecording = async () => {
 
     mediaRecorder.ondataavailable = async (event) => {
       if (event.data.size > 0) {
-        ws.send(event.data);
+        const audioBlob = new Blob([event.data], { type: 'audio/wav' });
+        const audioUrl = URL.createObjectURL(audioBlob);
+
+        const message = {
+          action: 'audio',
+          audioData: audioUrl,
+          sender: username,
+        };
+
+        ws.send(JSON.stringify(message));
         createAudioElement(event.data, 'self');
       }
     };
@@ -79,12 +88,24 @@ recordingButton.addEventListener('mouseup', () => {
 });
 
 const setUsername = () => {
-  // Atualize a variável username
   username = prompt('Digite seu nome de usuário:');
 };
 
 setUsername();
 initWebSocket();
+
+// Adiciona função para processar mensagens do chat
+const processChatMessage = (data) => {
+  try {
+    const { userId, userName, userColor, content, action } = JSON.parse(data);
+
+    if (action === 'chat') {
+      // Processa mensagem do chat aqui, se necessário
+    }
+  } catch (error) {
+    console.error('Erro ao processar mensagem JSON do chat:', error);
+  }
+};
 
 
 

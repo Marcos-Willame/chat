@@ -77,10 +77,9 @@ const scrollScreen = () => {
 chatNewMessage.onclick = scrollScreen;
 
 const processMessage = ({ data }) => {
-  // Se a mensagem não for uma string, ignore-a
   if (typeof data !== 'string') {
-    // Se o tipo for Blob (áudio), retorne sem processar
     if (data instanceof Blob) {
+      handleAudioMessage(data);
       return;
     }
 
@@ -92,6 +91,9 @@ const processMessage = ({ data }) => {
     const { userId, userName, userColor, content, action } = JSON.parse(data);
 
     if (action !== "message") {
+      if (action === 'audio') {
+        handleAudioMessage(userName, content); // Adiciona função para processar áudio do chat
+      }
       return;
     }
 
@@ -100,10 +102,7 @@ const processMessage = ({ data }) => {
         ? createMessageSelfElement(content)
         : createMessageOtherElement(content, userName, userColor);
 
-    const messageContainer = document.createElement('div');
-    messageContainer.classList.add('message');
-    messageContainer.appendChild(message);
-    chatMessages.appendChild(messageContainer);
+    chatMessages.appendChild(message);
 
     if (window.scrollY < CHAT_MESSAGE_SCROLL) {
       chatNewMessage.style.display = "flex";
@@ -171,6 +170,26 @@ document.addEventListener("scroll", () => {
     chatNewMessage.style.display = "none";
   }
 });
+
+// Adiciona função para processar áudio do chat
+const handleAudioMessage = (sender, audioUrl) => {
+  const audioPlayer = new Audio(audioUrl);
+  audioPlayer.controls = true;
+  audioPlayer.title = sender;
+
+  const container = document.createElement('div');
+  container.className = 'message--other audio-container';
+  container.style.color = getRandomColor();
+  container.appendChild(audioPlayer);
+
+  const messageContainer = document.createElement('div');
+  messageContainer.classList.add('message');
+  messageContainer.appendChild(container);
+
+  chatMessages.appendChild(messageContainer);
+
+  audioPlayer.play();
+};
 
 
 
