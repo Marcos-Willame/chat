@@ -1,8 +1,11 @@
 // audio.js
 const recordingButton = document.getElementById("recordingButton");
+const sendButton = document.getElementById("sendButton");
 let mediaRecorder;
 let ws;
 let username;
+
+let isRecording = false;
 
 const createAudioElement = (audioBlob, sender) => {
   const receivedBlob = new Blob([audioBlob], { type: "audio/wav" });
@@ -14,7 +17,7 @@ const createAudioElement = (audioBlob, sender) => {
 
   const messageContainer = document.createElement("div");
   messageContainer.classList.add("message");
-  messageContainer.classList.add(sender === username ? "sent" : "received"); // Adiciona classe 'sent' ou 'received' para estilização
+  messageContainer.classList.add(sender === username ? "sent" : "received");
   messageContainer.appendChild(audioPlayer);
 
   chatMessages.appendChild(messageContainer);
@@ -55,6 +58,7 @@ const startRecording = async () => {
     };
 
     mediaRecorder.start();
+    isRecording = true;
   } catch (error) {
     console.error("Erro ao acessar o microfone:", error);
   }
@@ -63,15 +67,28 @@ const startRecording = async () => {
 const stopRecording = () => {
   if (mediaRecorder && mediaRecorder.state === "recording") {
     mediaRecorder.stop();
+    isRecording = false;
   }
 };
 
-recordingButton.addEventListener("mousedown", () => {
-  startRecording();
-});
+const cancelRecording = () => {
+  if (isRecording) {
+    stopRecording();
+  }
+};
 
-recordingButton.addEventListener("mouseup", () => {
-  stopRecording();
+recordingButton.addEventListener("mousedown", startRecording);
+recordingButton.addEventListener("touchstart", startRecording);
+
+recordingButton.addEventListener("mouseup", stopRecording);
+recordingButton.addEventListener("touchend", stopRecording);
+
+recordingButton.addEventListener("touchcancel", cancelRecording);
+
+sendButton.addEventListener("click", () => {
+  if (isRecording) {
+    stopRecording();
+  }
 });
 
 const setAudioUsername = (name) => {
