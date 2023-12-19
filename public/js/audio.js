@@ -66,13 +66,14 @@ const stopRecording = () => {
   }
 };
 
-// Adiciona eventos para dispositivos móveis
+// Adiciona eventos para pcs
 recordingButton.addEventListener("mousedown", startRecording);
 recordingButton.addEventListener("mouseup", stopRecording);
 
+
 // Adiciona eventos para dispositivos móveis
-recordingButton.addEventListener("touchstart", startRecording);
-recordingButton.addEventListener("touchend", stopRecording);
+recordingButton.addEventListener("touchstart", startRecording, { passive: true });
+recordingButton.addEventListener("touchend", stopRecording, { passive: true });
 
 const setAudioUsername = (name) => {
   username = name;
