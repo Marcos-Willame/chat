@@ -1,11 +1,8 @@
 // audio.js
 const recordingButton = document.getElementById("recordingButton");
-const sendButton = document.getElementById("sendButton");
 let mediaRecorder;
 let ws;
 let username;
-
-let isRecording = false;
 
 const createAudioElement = (audioBlob, sender) => {
   const receivedBlob = new Blob([audioBlob], { type: "audio/wav" });
@@ -58,7 +55,6 @@ const startRecording = async () => {
     };
 
     mediaRecorder.start();
-    isRecording = true;
   } catch (error) {
     console.error("Erro ao acessar o microfone:", error);
   }
@@ -67,29 +63,16 @@ const startRecording = async () => {
 const stopRecording = () => {
   if (mediaRecorder && mediaRecorder.state === "recording") {
     mediaRecorder.stop();
-    isRecording = false;
   }
 };
 
-const cancelRecording = () => {
-  if (isRecording) {
-    stopRecording();
-  }
-};
-
+// Adiciona eventos para dispositivos móveis
 recordingButton.addEventListener("mousedown", startRecording);
-recordingButton.addEventListener("touchstart", startRecording);
-
 recordingButton.addEventListener("mouseup", stopRecording);
+
+// Adiciona eventos para dispositivos móveis
+recordingButton.addEventListener("touchstart", startRecording);
 recordingButton.addEventListener("touchend", stopRecording);
-
-recordingButton.addEventListener("touchcancel", cancelRecording);
-
-sendButton.addEventListener("click", () => {
-  if (isRecording) {
-    stopRecording();
-  }
-});
 
 const setAudioUsername = (name) => {
   username = name;
