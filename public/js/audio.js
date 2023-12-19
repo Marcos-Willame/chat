@@ -1,6 +1,6 @@
 // audio.js
 
-import { setUsername, getUsername } from './log.js';
+import { setUsername, getUsername } from './log';
 
 const recordingButton = document.getElementById('recordingButton');
 let mediaRecorder;
