@@ -61,7 +61,7 @@ const getRandomColor = () => {
 
 // Função para reproduzir o som de notificação
 function playNotificationSound() {
-  const notificationSound = document.getElementById('notificationSound');
+  const notificationSound = document.getElementById("notificationSound");
   notificationSound.play();
 }
 
@@ -78,13 +78,13 @@ chatNewMessage.onclick = scrollScreen;
 
 const processMessage = ({ data }) => {
   // Se a mensagem não for uma string, ignore-a
-  if (typeof data !== 'string') {
+  if (typeof data !== "string") {
     // Se o tipo for Blob (áudio), retorne sem processar
     if (data instanceof Blob) {
       return;
     }
 
-    console.error('Tipo de mensagem não suportado:', data);
+    console.error("Tipo de mensagem não suportado:", data);
     return;
   }
 
@@ -109,7 +109,7 @@ const processMessage = ({ data }) => {
       chatNewMessage.style.display = "none";
     }
   } catch (error) {
-    console.error('Erro ao processar mensagem JSON:', error);
+    console.error("Erro ao processar mensagem JSON:", error);
   }
 };
 
@@ -119,6 +119,9 @@ const handleLogin = (event) => {
   user.id = crypto.randomUUID();
   user.name = loginInput.value;
   user.color = getRandomColor();
+
+  setAudioUsername(user.name);
+  initWebSocket();
 
   login.style.display = "none";
   chat.style.display = "flex";
