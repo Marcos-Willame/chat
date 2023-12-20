@@ -3,9 +3,9 @@ const recordingButton = document.getElementById("recordingButton");
 let mediaRecorder;
 let ws;
 let username;
-let userColor; // Adicione essa variável para armazenar a cor do usuário
+let userColor;  // Declare userColor no script de áudio também, para evitar erros
 
-const createAudioElement = (audioBlob, sender) => {
+const createAudioElement = (audioBlob, sender, color) => {
   const receivedBlob = new Blob([audioBlob], { type: "audio/wav" });
   const receivedAudioUrl = URL.createObjectURL(receivedBlob);
 
@@ -17,14 +17,10 @@ const createAudioElement = (audioBlob, sender) => {
   messageContainer.classList.add("message");
   messageContainer.classList.add(sender === username ? "sent" : "received");
 
-  // Verifica se há uma cor definida para o usuário
-  if (userColor) {
-    // Criar elemento para o nome com a cor
+  if (color) {
     const nameElement = document.createElement("span");
-    nameElement.style.color = userColor; // Use a cor do usuário do chat.js
+    nameElement.style.color = color;  // Use a cor passada como argumento
     nameElement.textContent = `${sender}: `;
-
-    // Adicionar o elemento do nome antes do elemento de áudio
     messageContainer.appendChild(nameElement);
   }
 
@@ -43,7 +39,7 @@ const initWebSocket = () => {
 
   ws.onmessage = (event) => {
     if (event.data instanceof Blob && event.data.size > 0) {
-      createAudioElement(event.data, "other");
+      createAudioElement(event.data, "other", userColor);
     }
   };
 };
@@ -57,7 +53,7 @@ const startRecording = async () => {
     mediaRecorder.ondataavailable = async (event) => {
       if (event.data.size > 0) {
         ws.send(event.data);
-        createAudioElement(event.data, "self");
+        createAudioElement(event.data, "self", userColor);
       }
     };
 
@@ -85,21 +81,21 @@ recordingButton.addEventListener("mouseup", stopRecording);
 
 // Adiciona eventos para dispositivos móveis
 recordingButton.addEventListener("touchstart", (event) => {
-  event.preventDefault(); // Evita o comportamento padrão que poderia causar problemas no touchstart
+  event.preventDefault();
   startRecording();
 }, { passive: false });
 
 recordingButton.addEventListener("touchend", (event) => {
-  event.preventDefault(); // Evita o comportamento padrão que poderia causar problemas no touchend
+  event.preventDefault();
   stopRecording();
 }, { passive: false });
 
 const setAudioUsername = (name, color) => {
   username = name;
-  userColor = color; // Adicione a cor do usuário
+  userColor = color;
 };
 
-initWebSocket(); // Inicializa o WebSocket quando o script é carregado
+initWebSocket();
 
 
 
