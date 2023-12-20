@@ -113,6 +113,8 @@ const processMessage = ({ data }) => {
   }
 };
 
+let userColor; // Declare a variável userColor
+
 const handleLogin = (event) => {
   event.preventDefault();
 
