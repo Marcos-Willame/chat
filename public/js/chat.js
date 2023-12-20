@@ -163,11 +163,6 @@ document.addEventListener("scroll", () => {
   }
 });
 
-
-
-
-
-
 /*//chat.js
 
 // login elements
@@ -333,5 +328,3 @@ document.addEventListener("scroll", () => {
   }
 });
 */
-
-
