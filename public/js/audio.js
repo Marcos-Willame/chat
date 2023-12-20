@@ -1,7 +1,9 @@
+// audio.js
 const recordingButton = document.getElementById("recordingButton");
 let mediaRecorder;
 let ws;
 let username;
+let userColor;
 
 const createAudioElement = (audioBlob, sender) => {
   const receivedBlob = new Blob([audioBlob], { type: "audio/wav" });
@@ -15,17 +17,31 @@ const createAudioElement = (audioBlob, sender) => {
   messageContainer.classList.add("message");
   messageContainer.classList.add(sender === username ? "sent" : "received");
 
-  // Verifica se userColor está definido antes de criar o elemento de nome
-  if (userColor) {
-    const nameElement = document.createElement("span");
-    nameElement.style.color = userColor;  // Use a cor do usuário
-    nameElement.textContent = `${sender}: `;
-    messageContainer.appendChild(nameElement);
-  }
+  // Criar elemento para o nome com a cor
+  const nameElement = document.createElement("span");
+  nameElement.style.color = userColor; // Use a cor do usuário do chat.js
+  nameElement.textContent = `${sender}: `;
 
+  // Adicionar o elemento do nome antes do elemento de áudio
+  messageContainer.appendChild(nameElement);
   messageContainer.appendChild(audioPlayer);
 
   chatMessages.appendChild(messageContainer);
+};
+
+const initWebSocket = () => {
+  ws = new WebSocket(WS_URL);
+
+  ws.onopen = () => {
+    console.log("WebSocket conectado.");
+    recordingButton.disabled = false;
+  };
+
+  ws.onmessage = (event) => {
+    if (event.data instanceof Blob && event.data.size > 0) {
+      createAudioElement(event.data, "other");
+    }
+  };
 };
 
 const startRecording = async () => {
@@ -67,11 +83,15 @@ recordingButton.addEventListener("mouseup", stopRecording);
 recordingButton.addEventListener("touchstart", startRecording, { passive: true });
 recordingButton.addEventListener("touchend", stopRecording, { passive: true });
 
-// A função setAudioUsername agora aceita a cor do usuário
 const setAudioUsername = (name, color) => {
   username = name;
-  userColor = color;
+  userColor = color; // Atribua a cor do usuário
 };
+
+
+
+
+
 
 
 

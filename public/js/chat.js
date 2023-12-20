@@ -1,11 +1,11 @@
-// chat.js
+//chat.js
 
-// Elementos de login
+// login elements
 const login = document.querySelector(".login");
 const loginForm = login.querySelector(".login__form");
 const loginInput = login.querySelector(".login__input");
 
-// Elementos do chat
+// chat elements
 const chat = document.querySelector(".chat");
 const chatForm = chat.querySelector(".chat__form");
 const chatInput = chat.querySelector(".chat__input");
@@ -16,41 +16,44 @@ const chatNewMessage = document.querySelector("#new-message");
 const CHAT_MESSAGE_SCROLL = 200;
 
 const colors = [
-  "cadetblue", "darkgoldenrod", "cornflowerblue", "darkkhaki", "hotpink", "gold",
+  "cadetblue",
+  "darkgoldenrod",
+  "cornflowerblue",
+  "darkkhaki",
+  "hotpink",
+  "gold",
 ];
 
 const user = { id: "", name: "", color: "" };
 
-// Objeto global para armazenar informações do usuário
-window.chatUserInfo = { name: "", color: "" };
-
 let websocket;
 
-// Cria elemento de mensagem enviada pelo próprio usuário
 const createMessageSelfElement = (content) => {
   const div = document.createElement("div");
+
   div.classList.add("message--self");
   div.innerHTML = content;
+
   return div;
 };
 
-// Cria elemento de mensagem enviada por outros usuários
 const createMessageOtherElement = (content, sender, senderColor) => {
   const div = document.createElement("div");
   const span = document.createElement("span");
 
   div.classList.add("message--other");
+
   span.classList.add("message--sender");
   span.style.color = senderColor;
-  span.innerHTML = sender;
 
   div.appendChild(span);
+
+  span.innerHTML = sender;
   div.innerHTML += content;
 
   return div;
 };
 
-// Obtém uma cor aleatória do array
 const getRandomColor = () => {
   const randomIndex = Math.floor(Math.random() * colors.length);
   return colors[randomIndex];
@@ -62,20 +65,25 @@ function playNotificationSound() {
   notificationSound.play();
 }
 
-// Função para rolar a tela
 const scrollScreen = () => {
   window.scrollTo({
     top: document.body.scrollHeight,
     behavior: "smooth",
   });
+
   chatNewMessage.style.display = "none";
 };
 
 chatNewMessage.onclick = scrollScreen;
 
-// Processa mensagens recebidas
 const processMessage = ({ data }) => {
+  // Se a mensagem não for uma string, ignore-a
   if (typeof data !== "string") {
+    // Se o tipo for Blob (áudio), retorne sem processar
+    if (data instanceof Blob) {
+      return;
+    }
+
     console.error("Tipo de mensagem não suportado:", data);
     return;
   }
@@ -87,9 +95,10 @@ const processMessage = ({ data }) => {
       return;
     }
 
-    const message = userId === user.id
-      ? createMessageSelfElement(content)
-      : createMessageOtherElement(content, userName, userColor);
+    const message =
+      userId == user.id
+        ? createMessageSelfElement(content)
+        : createMessageOtherElement(content, userName, userColor);
 
     chatMessages.appendChild(message);
 
@@ -104,7 +113,8 @@ const processMessage = ({ data }) => {
   }
 };
 
-// Manipula o evento de login
+let userColor; // Declare a variável userColor
+
 const handleLogin = (event) => {
   event.preventDefault();
 
@@ -112,8 +122,8 @@ const handleLogin = (event) => {
   user.name = loginInput.value;
   user.color = getRandomColor();
 
-  window.chatUserInfo.name = user.name;
-  window.chatUserInfo.color = user.color;
+  setAudioUsername(user.name, userColor);
+  initWebSocket();
 
   login.style.display = "none";
   chat.style.display = "flex";
@@ -122,19 +132,20 @@ const handleLogin = (event) => {
   websocket.onmessage = processMessage;
 };
 
-// Envia a mensagem
 const sendMessage = (event) => {
   event.preventDefault();
 
   const messageContent = chatInput.value.trim();
 
-  if (messageContent !== "") {
+  // Remova a verificação para mensagens vazias
+  // Mantenha a verificação para outros tipos de conteúdo (por exemplo, texto)
+  if (messageContent !== "" || chatInput.files?.length > 0) {
     const message = {
       userId: user.id,
       userName: user.name,
       userColor: user.color,
       content: messageContent,
-      action: "message",
+      action: "chat",
     };
 
     websocket.send(JSON.stringify(message));
@@ -146,17 +157,11 @@ const sendMessage = (event) => {
 loginForm.addEventListener("submit", handleLogin);
 chatForm.addEventListener("submit", sendMessage);
 
-// Evento de rolagem da página
 document.addEventListener("scroll", () => {
   if (window.scrollY >= CHAT_MESSAGE_SCROLL) {
     chatNewMessage.style.display = "none";
   }
 });
-
-// Inicialização do WebSocket para áudio
-const initWebSocket = () => {
-  // Este código deve ser fornecido no audio.js
-};
 
 
 
