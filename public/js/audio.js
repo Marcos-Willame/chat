@@ -24,6 +24,7 @@ const createAudioElement = (audioBlob, sender) => {
 
   // Adicionar o elemento do nome antes do elemento de áudio
   messageContainer.appendChild(nameElement);
+  messageContainer.classList.add(sender === username ? "sent" : "received"); // Adiciona classe 'sent' ou 'received' para estilização
   messageContainer.appendChild(audioPlayer);
 
   chatMessages.appendChild(messageContainer);
@@ -193,3 +194,21 @@ const setAudioUsername = (name) => {
 */
 
 
+recordingButton.addEventListener("mousedown", () => {
+  startRecording();
+});
+
+recordingButton.addEventListener("mouseup", () => {
+  stopRecording();
+});
+
+const setAudioUsername = (name) => {
+  username = name;
+};
+
+// const setUsername = () => {
+//   username = prompt('Digite seu nome de usuário:');
+// };
+
+// setUsername();
+// initWebSocket();
