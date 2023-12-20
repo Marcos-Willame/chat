@@ -4,7 +4,6 @@ let mediaRecorder;
 let ws;
 let username;
 
-
 const createAudioElement = (audioBlob, sender) => {
   const receivedBlob = new Blob([audioBlob], { type: "audio/wav" });
   const receivedAudioUrl = URL.createObjectURL(receivedBlob);
@@ -14,17 +13,17 @@ const createAudioElement = (audioBlob, sender) => {
   audioPlayer.title = sender;
 
   const messageContainer = document.createElement("div");
+
   messageContainer.classList.add("message");
-  messageContainer.classList.add(sender === username ? "sent" : "received");
+  messageContainer.classList.add(sender === "self" ? "sent" : "received");
 
   // Criar elemento para o nome com a cor
   const nameElement = document.createElement("span");
   nameElement.style.color = userColor; // Use a cor do usuário do chat.js
-  nameElement.textContent = `${sender}: `;
+  nameElement.textContent = `${sender === "self" ? username : "Usuário"}: `;
 
   // Adicionar o elemento do nome antes do elemento de áudio
   messageContainer.appendChild(nameElement);
-  messageContainer.classList.add(sender === username ? "sent" : "received"); // Adiciona classe 'sent' ou 'received' para estilização
   messageContainer.appendChild(audioPlayer);
 
   chatMessages.appendChild(messageContainer);
@@ -81,20 +80,15 @@ recordingButton.addEventListener("mousedown", startRecording);
 recordingButton.addEventListener("mouseup", stopRecording);
 
 // Adiciona eventos para dispositivos móveis
-recordingButton.addEventListener("touchstart", startRecording, { passive: true });
+recordingButton.addEventListener("touchstart", startRecording, {
+  passive: true,
+});
 recordingButton.addEventListener("touchend", stopRecording, { passive: true });
 
 const setAudioUsername = (name, color) => {
   username = name;
   userColor = color; // Atribua a cor do usuário
 };
-
-
-
-
-
-
-
 
 /*// audio.js
 const recordingButton = document.getElementById("recordingButton");
