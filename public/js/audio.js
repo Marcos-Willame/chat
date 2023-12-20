@@ -1,9 +1,7 @@
-// audio.js
 const recordingButton = document.getElementById("recordingButton");
 let mediaRecorder;
 let ws;
 let username;
-let userColor; // Declare a variável userColor no audio.js
 
 const createAudioElement = (audioBlob, sender) => {
   const receivedBlob = new Blob([audioBlob], { type: "audio/wav" });
@@ -28,21 +26,6 @@ const createAudioElement = (audioBlob, sender) => {
   messageContainer.appendChild(audioPlayer);
 
   chatMessages.appendChild(messageContainer);
-};
-
-const initWebSocket = () => {
-  ws = new WebSocket(WS_URL);
-
-  ws.onopen = () => {
-    console.log("WebSocket conectado.");
-    recordingButton.disabled = false;
-  };
-
-  ws.onmessage = (event) => {
-    if (event.data instanceof Blob && event.data.size > 0) {
-      createAudioElement(event.data, "other");
-    }
-  };
 };
 
 const startRecording = async () => {
@@ -84,11 +67,11 @@ recordingButton.addEventListener("mouseup", stopRecording);
 recordingButton.addEventListener("touchstart", startRecording, { passive: true });
 recordingButton.addEventListener("touchend", stopRecording, { passive: true });
 
+// A função setAudioUsername agora aceita a cor do usuário
 const setAudioUsername = (name, color) => {
   username = name;
   userColor = color;
 };
-
 
 
 
