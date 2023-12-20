@@ -1,8 +1,6 @@
-//chat.js do back end
-function handleChat({ server, data }) {
-  const handledData = JSON.stringify({ ...data, action: "message" });
+function handleTextMessage({ server, data }) {
+  const handledData = JSON.stringify({ ...data, action: "text" });
   server.clients.forEach((client) => client.send(handledData));
 }
 
-module.exports = { handleChat };
-
+module.exports = { handleTextMessage };

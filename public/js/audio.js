@@ -1,188 +1,70 @@
-// audio.js
-const recordingButton = document.getElementById("recordingButton");
 let mediaRecorder;
-let ws;
-let username;
 
-const createAudioElement = (audioBlob, sender) => {
-  const receivedBlob = new Blob([audioBlob], { type: "audio/wav" });
+function createAudioElement(eventData) {
+  const receivedBlob = new Blob([eventData.audio], { type: "audio/wav" });
   const receivedAudioUrl = URL.createObjectURL(receivedBlob);
 
   const audioPlayer = new Audio(receivedAudioUrl);
   audioPlayer.controls = true;
-  audioPlayer.title = sender;
+  audioPlayer.title = eventData;
 
   const messageContainer = document.createElement("div");
 
   messageContainer.classList.add("message");
-  messageContainer.classList.add(sender === "self" ? "sent" : "received");
+  messageContainer.classList.add(eventData === "self" ? "sent" : "received");
 
-  // Criar elemento para o nome com a cor
   const nameElement = document.createElement("span");
-  nameElement.style.color = userColor; // Use a cor do usuário do chat.js
-  nameElement.textContent = `${sender === "self" ? username : "Usuário"}: `;
+  nameElement.style.color = eventData.color;
+  nameElement.textContent = `${eventData.name}`;
 
-  // Adicionar o elemento do nome antes do elemento de áudio
   messageContainer.appendChild(nameElement);
   messageContainer.appendChild(audioPlayer);
 
-  chatMessages.appendChild(messageContainer);
-};
+  chatMessagesEl.appendChild(messageContainer);
+}
 
-const initWebSocket = () => {
-  ws = new WebSocket(WS_URL);
+async function sendAudioMessage(event) {
+  if (event.data.size > 0) {
+    const websocketMessage = { ...user, audio: event.data, action: "audio" };
+    websocket.send(JSON.stringify(websocketMessage));
+    websocket.send(websocketMessage.audio);
 
-  ws.onopen = () => {
-    console.log("WebSocket conectado.");
-    recordingButton.disabled = false;
-  };
+    createAudioElement(websocketMessage);
+  }
+}
 
-  ws.onmessage = (event) => {
-    if (event.data instanceof Blob && event.data.size > 0) {
-      createAudioElement(event.data, "other");
-    }
-  };
-};
+function stopAudioMessage() {
+  mediaRecorder.stream.getTracks().forEach((track) => {
+    track.stop();
+  });
+}
 
-const startRecording = async () => {
+async function startRecording() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
     mediaRecorder = new MediaRecorder(stream);
 
-    mediaRecorder.ondataavailable = async (event) => {
-      if (event.data.size > 0) {
-        ws.send(event.data);
-        createAudioElement(event.data, "self");
-      }
-    };
-
-    mediaRecorder.onstop = () => {
-      mediaRecorder.stream.getTracks().forEach((track) => {
-        track.stop();
-      });
-    };
+    mediaRecorder.ondataavailable = sendAudioMessage;
+    mediaRecorder.onstop = stopAudioMessage;
 
     mediaRecorder.start();
   } catch (error) {
     console.error("Erro ao acessar o microfone:", error);
   }
-};
+}
 
-const stopRecording = () => {
+function stopRecording() {
   if (mediaRecorder && mediaRecorder.state === "recording") {
     mediaRecorder.stop();
   }
-};
+}
 
-// Adiciona eventos para pcs
-recordingButton.addEventListener("mousedown", startRecording);
-recordingButton.addEventListener("mouseup", stopRecording);
+recordingButtonEl.addEventListener("mousedown", startRecording);
+recordingButtonEl.addEventListener("mouseup", stopRecording);
 
-// Adiciona eventos para dispositivos móveis
-recordingButton.addEventListener("touchstart", startRecording, {
+recordingButtonEl.addEventListener("touchstart", startRecording, {
   passive: true,
 });
-recordingButton.addEventListener("touchend", stopRecording, { passive: true });
-
-const setAudioUsername = (name, color) => {
-  username = name;
-  userColor = color; // Atribua a cor do usuário
-};
-
-/*// audio.js
-const recordingButton = document.getElementById("recordingButton");
-let mediaRecorder;
-let ws;
-let username;
-
-const createAudioElement = (audioBlob, sender) => {
-  const receivedBlob = new Blob([audioBlob], { type: "audio/wav" });
-  const receivedAudioUrl = URL.createObjectURL(receivedBlob);
-
-  const audioPlayer = new Audio(receivedAudioUrl);
-  audioPlayer.controls = true;
-  audioPlayer.title = sender;
-
-  const messageContainer = document.createElement("div");
-  messageContainer.classList.add("message");
-  messageContainer.classList.add(sender === username ? "sent" : "received");
-  messageContainer.appendChild(audioPlayer);
-
-  chatMessages.appendChild(messageContainer);
-};
-
-const initWebSocket = () => {
-  ws = new WebSocket(WS_URL);
-
-  ws.onopen = () => {
-    console.log("WebSocket conectado.");
-    recordingButton.disabled = false;
-  };
-
-  ws.onmessage = (event) => {
-    if (event.data instanceof Blob && event.data.size > 0) {
-      createAudioElement(event.data, "other");
-    }
-  };
-};
-
-const startRecording = async () => {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
-    mediaRecorder = new MediaRecorder(stream);
-
-    mediaRecorder.ondataavailable = async (event) => {
-      if (event.data.size > 0) {
-        ws.send(event.data);
-        createAudioElement(event.data, "self");
-      }
-    };
-
-    mediaRecorder.onstop = () => {
-      mediaRecorder.stream.getTracks().forEach((track) => {
-        track.stop();
-      });
-    };
-
-    mediaRecorder.start();
-  } catch (error) {
-    console.error("Erro ao acessar o microfone:", error);
-  }
-};
-
-const stopRecording = () => {
-  if (mediaRecorder && mediaRecorder.state === "recording") {
-    mediaRecorder.stop();
-  }
-};
-
-// Adiciona eventos para pcs
-recordingButton.addEventListener("mousedown", startRecording);
-recordingButton.addEventListener("mouseup", stopRecording);
-
-
-// Adiciona eventos para dispositivos móveis
-recordingButton.addEventListener("touchstart", startRecording, { passive: true });
-recordingButton.addEventListener("touchend", stopRecording, { passive: true });
-
-const setAudioUsername = (name) => {
-  username = name;
-};
-
-
-
-
-
-
-
-
-
-// const setUsername = () => {
-//   username = prompt('Digite seu nome de usuário:');
-// };
-
-// setUsername();
-// initWebSocket();
-*/
+recordingButtonEl.addEventListener("touchend", stopRecording, {
+  passive: true,
+});

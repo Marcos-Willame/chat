@@ -8,8 +8,9 @@ const express = require("express");
 
 const { WebSocketServer, WebSocket } = require("ws");
 
-const { handleChat } = require("./chat");
+const { handleTextMessage } = require("./chat");
 const { handleRoulette } = require("./roulette");
+const { handleAudioMessage } = require("./audio");
 
 const PORT = process.env.PORT || 8080;
 
@@ -22,31 +23,25 @@ wss.on("connection", (ws) => {
   setupWebSocket(ws);
 });
 
+let data = null;
+
 function setupWebSocket(ws) {
   ws.on("error", console.error);
 
   ws.on("message", (message) => {
     try {
-      const data = JSON.parse(message);
+      data = JSON.parse(message);
+    } catch {
+      handleAudioMessage({ ws, message, server: wss });
+      return;
+    }
 
-      if (data.action === "chat") {
-        handleChat({ ws, data, server: wss });
-      } else if (data.action === "roulette") {
-        handleRoulette({ ws, data, server: wss });
-      }
-    } catch (error) {
-      console.error("Erro ao fazer parse da mensagem JSON. Tratando como áudio:", error);
-
-      wss.clients.forEach((client) => {
-        if (client !== ws && client.readyState === WebSocket.OPEN) {
-          // Verificamos se o cliente não é o mesmo que enviou a mensagem
-          if (Buffer.isBuffer(message)) {
-            client.send(message, { binary: true });
-          } else {
-            client.send(message);
-          }
-        }
-      });
+    if (data.action === "text") {
+      handleTextMessage({ ws, data, server: wss });
+    } else if (data.action === "audio") {
+      handleAudioMessage({ ws, message, server: wss });
+    } else if (data.action === "roulette") {
+      handleRoulette({ ws, data, server: wss });
     }
   });
 
@@ -58,6 +53,3 @@ app.use(express.static("public"));
 server.listen(PORT, () => {
   console.info(`Servidor Express rodando na porta ${PORT}`);
 });
-
-
-

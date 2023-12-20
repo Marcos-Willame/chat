@@ -66,32 +66,29 @@
       <section class="containers">
         <section class="login">
           <h2>Login</h2>
-          <form class="login__form" id="loginForm">
+          <form class="login-form">
             <input
               type="text"
-              class="login__input"
+              class="login-form-input"
               placeholder="Seu nome"
               required
             />
-            <button type="submit" class="login__button">Entrar</button>
+            <button type="submit" class="login-form-submit">Entrar</button>
           </form>
         </section>
 
         <section class="chat">
-          <section class="chat__messages" id="chatMessages"></section>
-          <div id="audioContainer"></div>
-          <!-- Esta parte está presente -->
-          <form class="chat__form" id="chatForm">
+          <section class="chat-form-message"></section>
+          <form class="chat-form">
             <h1>Audio</h1>
-            <button id="recordingButton" disabled></button>
+            <button id="recording-button" type="button" disabled></button>
             <input
               type="text"
-              class="chat__input"
+              class="chat-form-input"
               placeholder="Digite uma mensagem"
               autofocus
             />
-
-            <button type="submit" class="chat__button">
+            <button type="submit" class="chat-form-submit">
               <span class="material-symbols-outlined">send</span>
             </button>
           </form>
@@ -99,21 +96,20 @@
       </section>
     </div>
     <div class="botão-conteiner">
-      <button id="new-message"></button>
+      <button id="scroll-to-bottom"></button>
       <div id="setaBaixo"></div>
     </div>
-    <!-- Adicione um elemento de áudio oculto -->
+
     <audio
-      id="notificationSound"
-      src="./music.mp3/Mensagem-Do-Xiaomi.mp3"
+      id="notification-sound"
+      src="./sounds/sound.mp3"
       preload="auto"
     ></audio>
 
     <script src="./js/main.js"></script>
+    <script src="./js/utils.js"></script>
     <script src="./js/roulette.js"></script>
     <script src="./js/chat.js"></script>
     <script src="./js/audio.js"></script>
-
-    <!--<script src="./js/chatAudio.js"></script>-->
   </body>
 </html>
