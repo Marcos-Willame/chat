@@ -3,7 +3,7 @@ const recordingButton = document.getElementById("recordingButton");
 let mediaRecorder;
 let ws;
 let username;
-let userColor;
+
 
 const createAudioElement = (audioBlob, sender) => {
   const receivedBlob = new Blob([audioBlob], { type: "audio/wav" });
