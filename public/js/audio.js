@@ -3,6 +3,7 @@ const recordingButton = document.getElementById("recordingButton");
 let mediaRecorder;
 let ws;
 let username;
+let userColor; // Adicione essa variável para armazenar a cor do usuário
 
 const createAudioElement = (audioBlob, sender) => {
   const receivedBlob = new Blob([audioBlob], { type: "audio/wav" });
@@ -16,18 +17,21 @@ const createAudioElement = (audioBlob, sender) => {
   messageContainer.classList.add("message");
   messageContainer.classList.add(sender === username ? "sent" : "received");
 
-  // Criar elemento para o nome com a cor
-  const nameElement = document.createElement("span");
-  nameElement.style.color = userColor; // Use a cor do usuário do chat.js
-  nameElement.textContent = `${sender}: `;
+  // Verifica se há uma cor definida para o usuário
+  if (userColor) {
+    // Criar elemento para o nome com a cor
+    const nameElement = document.createElement("span");
+    nameElement.style.color = userColor; // Use a cor do usuário do chat.js
+    nameElement.textContent = `${sender}: `;
 
-  // Adicionar o elemento do nome antes do elemento de áudio
-  messageContainer.appendChild(nameElement);
+    // Adicionar o elemento do nome antes do elemento de áudio
+    messageContainer.appendChild(nameElement);
+  }
+
   messageContainer.appendChild(audioPlayer);
 
   chatMessages.appendChild(messageContainer);
 };
-
 
 const initWebSocket = () => {
   ws = new WebSocket(WS_URL);
@@ -79,15 +83,23 @@ const stopRecording = () => {
 recordingButton.addEventListener("mousedown", startRecording);
 recordingButton.addEventListener("mouseup", stopRecording);
 
-
 // Adiciona eventos para dispositivos móveis
-recordingButton.addEventListener("touchstart", startRecording, { passive: true });
-recordingButton.addEventListener("touchend", stopRecording, { passive: true });
+recordingButton.addEventListener("touchstart", (event) => {
+  event.preventDefault(); // Evita o comportamento padrão que poderia causar problemas no touchstart
+  startRecording();
+}, { passive: false });
 
-const setAudioUsername = (name) => {
+recordingButton.addEventListener("touchend", (event) => {
+  event.preventDefault(); // Evita o comportamento padrão que poderia causar problemas no touchend
+  stopRecording();
+}, { passive: false });
+
+const setAudioUsername = (name, color) => {
   username = name;
+  userColor = color; // Adicione a cor do usuário
 };
 
+initWebSocket(); // Inicializa o WebSocket quando o script é carregado
 
 
 
