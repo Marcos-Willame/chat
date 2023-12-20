@@ -1,4 +1,169 @@
-//chat.js
+// chat.js
+
+// Elementos de login
+const login = document.querySelector(".login");
+const loginForm = login.querySelector(".login__form");
+const loginInput = login.querySelector(".login__input");
+
+// Elementos do chat
+const chat = document.querySelector(".chat");
+const chatForm = chat.querySelector(".chat__form");
+const chatInput = chat.querySelector(".chat__input");
+const chatMessages = chat.querySelector(".chat__messages");
+
+const chatNewMessage = document.querySelector("#new-message");
+
+const CHAT_MESSAGE_SCROLL = 200;
+
+const colors = [
+  "cadetblue", "darkgoldenrod", "cornflowerblue", "darkkhaki", "hotpink", "gold",
+];
+
+const user = { id: "", name: "", color: "" };
+
+// Objeto global para armazenar informações do usuário
+window.chatUserInfo = { name: "", color: "" };
+
+let websocket;
+
+// Cria elemento de mensagem enviada pelo próprio usuário
+const createMessageSelfElement = (content) => {
+  const div = document.createElement("div");
+  div.classList.add("message--self");
+  div.innerHTML = content;
+  return div;
+};
+
+// Cria elemento de mensagem enviada por outros usuários
+const createMessageOtherElement = (content, sender, senderColor) => {
+  const div = document.createElement("div");
+  const span = document.createElement("span");
+
+  div.classList.add("message--other");
+  span.classList.add("message--sender");
+  span.style.color = senderColor;
+  span.innerHTML = sender;
+
+  div.appendChild(span);
+  div.innerHTML += content;
+
+  return div;
+};
+
+// Obtém uma cor aleatória do array
+const getRandomColor = () => {
+  const randomIndex = Math.floor(Math.random() * colors.length);
+  return colors[randomIndex];
+};
+
+// Função para reproduzir o som de notificação
+function playNotificationSound() {
+  const notificationSound = document.getElementById("notificationSound");
+  notificationSound.play();
+}
+
+// Função para rolar a tela
+const scrollScreen = () => {
+  window.scrollTo({
+    top: document.body.scrollHeight,
+    behavior: "smooth",
+  });
+  chatNewMessage.style.display = "none";
+};
+
+chatNewMessage.onclick = scrollScreen;
+
+// Processa mensagens recebidas
+const processMessage = ({ data }) => {
+  if (typeof data !== "string") {
+    console.error("Tipo de mensagem não suportado:", data);
+    return;
+  }
+
+  try {
+    const { userId, userName, userColor, content, action } = JSON.parse(data);
+
+    if (action !== "message") {
+      return;
+    }
+
+    const message = userId === user.id
+      ? createMessageSelfElement(content)
+      : createMessageOtherElement(content, userName, userColor);
+
+    chatMessages.appendChild(message);
+
+    if (window.scrollY < CHAT_MESSAGE_SCROLL) {
+      chatNewMessage.style.display = "flex";
+      playNotificationSound();
+    } else {
+      chatNewMessage.style.display = "none";
+    }
+  } catch (error) {
+    console.error("Erro ao processar mensagem JSON:", error);
+  }
+};
+
+// Manipula o evento de login
+const handleLogin = (event) => {
+  event.preventDefault();
+
+  user.id = crypto.randomUUID();
+  user.name = loginInput.value;
+  user.color = getRandomColor();
+
+  window.chatUserInfo.name = user.name;
+  window.chatUserInfo.color = user.color;
+
+  login.style.display = "none";
+  chat.style.display = "flex";
+
+  websocket = new WebSocket(WS_URL);
+  websocket.onmessage = processMessage;
+};
+
+// Envia a mensagem
+const sendMessage = (event) => {
+  event.preventDefault();
+
+  const messageContent = chatInput.value.trim();
+
+  if (messageContent !== "") {
+    const message = {
+      userId: user.id,
+      userName: user.name,
+      userColor: user.color,
+      content: messageContent,
+      action: "message",
+    };
+
+    websocket.send(JSON.stringify(message));
+
+    chatInput.value = "";
+  }
+};
+
+loginForm.addEventListener("submit", handleLogin);
+chatForm.addEventListener("submit", sendMessage);
+
+// Evento de rolagem da página
+document.addEventListener("scroll", () => {
+  if (window.scrollY >= CHAT_MESSAGE_SCROLL) {
+    chatNewMessage.style.display = "none";
+  }
+});
+
+// Inicialização do WebSocket para áudio
+const initWebSocket = () => {
+  // Este código deve ser fornecido no audio.js
+};
+
+
+
+
+
+
+/*//chat.js
 
 // login elements
 const login = document.querySelector(".login");
@@ -162,6 +327,6 @@ document.addEventListener("scroll", () => {
     chatNewMessage.style.display = "none";
   }
 });
-
+*/
 
 
