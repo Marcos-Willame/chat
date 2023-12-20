@@ -3,6 +3,7 @@ const recordingButton = document.getElementById("recordingButton");
 let mediaRecorder;
 let ws;
 let username;
+let userColor; // Declare a variável userColor no audio.js
 
 const createAudioElement = (audioBlob, sender) => {
   const receivedBlob = new Blob([audioBlob], { type: "audio/wav" });
@@ -87,7 +88,6 @@ const setAudioUsername = (name, color) => {
   username = name;
   userColor = color;
 };
-
 
 
 
