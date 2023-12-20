@@ -192,23 +192,3 @@ const setAudioUsername = (name) => {
 // setUsername();
 // initWebSocket();
 */
-
-
-recordingButton.addEventListener("mousedown", () => {
-  startRecording();
-});
-
-recordingButton.addEventListener("mouseup", () => {
-  stopRecording();
-});
-
-const setAudioUsername = (name) => {
-  username = name;
-};
-
-// const setUsername = () => {
-//   username = prompt('Digite seu nome de usuário:');
-// };
-
-// setUsername();
-// initWebSocket();
