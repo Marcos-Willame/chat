@@ -120,7 +120,7 @@ const handleLogin = (event) => {
   user.name = loginInput.value;
   user.color = getRandomColor();
 
-  setAudioUsername(user.name);
+  setAudioUsername(user.name, userColor);
   initWebSocket();
 
   login.style.display = "none";

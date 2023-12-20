@@ -15,10 +15,19 @@ const createAudioElement = (audioBlob, sender) => {
   const messageContainer = document.createElement("div");
   messageContainer.classList.add("message");
   messageContainer.classList.add(sender === username ? "sent" : "received");
+
+  // Criar elemento para o nome com a cor
+  const nameElement = document.createElement("span");
+  nameElement.style.color = userColor; // Use a cor do usuário do chat.js
+  nameElement.textContent = `${sender}: `;
+
+  // Adicionar o elemento do nome antes do elemento de áudio
+  messageContainer.appendChild(nameElement);
   messageContainer.appendChild(audioPlayer);
 
   chatMessages.appendChild(messageContainer);
 };
+
 
 const initWebSocket = () => {
   ws = new WebSocket(WS_URL);
@@ -78,6 +87,14 @@ recordingButton.addEventListener("touchend", stopRecording, { passive: true });
 const setAudioUsername = (name) => {
   username = name;
 };
+
+
+
+
+
+
+
+
 
 // const setUsername = () => {
 //   username = prompt('Digite seu nome de usuário:');
