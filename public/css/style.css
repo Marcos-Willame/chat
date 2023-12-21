@@ -195,7 +195,7 @@
   border-radius: 100px; /* Borda arredondada - ajuste conforme necessário */
 }
 
-scroll-to-bottom {
+#scroll-to-bottom {
   background-image: url(../images/CuteMensagem.jpg);
   background-size: 100% 130%; /* Ajustado para cobrir completamente o botão */
   background-repeat: no-repeat;
