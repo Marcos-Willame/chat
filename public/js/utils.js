@@ -182,14 +182,17 @@ scrollToBottomEl.onclick = scrollToBottom;
 function scrollToMessage() {
   if (window.scrollY < CHAT_MESSAGE_SCROLL) {
     scrollToBottomEl.style.display = "flex";
+    scrollSetaBaixoEl.style.display = "flex";
     playNotificationSound();
   } else {
     scrollToBottomEl.style.display = "none";
+    scrollSetaBaixoEl.style.display = "none";
   }
 }
 
 document.addEventListener("scroll", () => {
   if (window.scrollY >= CHAT_MESSAGE_SCROLL) {
     scrollToBottomEl.style.display = "none";
+    scrollSetaBaixoEl.style.display = "none";
   }
 });

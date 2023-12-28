@@ -1,5 +1,5 @@
-//const WS_URL = "ws://localhost:8080";
-const WS_URL = "wss://roulette-chat-f12492d53689.herokuapp.com";
+const WS_URL = "ws://localhost:8080";
+//const WS_URL = "wss://roulette-chat-f12492d53689.herokuapp.com";
 
 const loginEl = document.querySelector(".login");
 const loginFormEl = loginEl.querySelector(".login-form");
@@ -12,6 +12,7 @@ const chatMessagesEl = chatEl.querySelector(".chat-form-message");
 
 const recordingButtonEl = document.getElementById("recording-button");
 const scrollToBottomEl = document.getElementById("scroll-to-bottom");
+const scrollSetaBaixoEl = document.getElementById("setaBaixo")
 
 const websocket = new WebSocket(WS_URL);
 const user = { id: "", name: "", color: "" };
